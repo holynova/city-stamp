@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-31T06:58:00+08:00",
+  "title": "Design System: 城市印记 · City Stamp",
+  "extensions": {
+    "colorMeta": {
+      "black": { "role": "neutral", "displayName": "Archive Black", "canonical": "#07090a", "tonalRamp": ["#07090a", "#0d1111", "#141919", "#202525", "#3a403e", "#6b716b", "#a99d8e", "#f3eadb"] },
+      "panel": { "role": "neutral", "displayName": "Panel Charcoal", "canonical": "#101415", "tonalRamp": ["#101415", "#171c1b", "#202625", "#343b37", "#515a52", "#7b8278", "#b7b6a5", "#f3eadb"] },
+      "gold": { "role": "primary", "displayName": "Old Gold", "canonical": "#c9a87a", "tonalRamp": ["#2f2317", "#513d26", "#765937", "#9a764b", "#c9a87a", "#dfbf91", "#f2d2a0", "#fff2dc"] },
+      "gold-bright": { "role": "primary", "displayName": "Paper Gold", "canonical": "#f2d2a0", "tonalRamp": ["#302416", "#553f25", "#7b5e38", "#a48152", "#c9a87a", "#dfbf91", "#f2d2a0", "#fff8eb"] },
+      "shanghai-accent": { "role": "secondary", "displayName": "Shanghai Coral", "canonical": "#df705d", "tonalRamp": ["#351514", "#5f2824", "#8c3932", "#b64d40", "#df705d", "#ee9680", "#ffb29a", "#ffe4d8"] },
+      "suzhou-accent": { "role": "secondary", "displayName": "Suzhou Jade", "canonical": "#65b8a6", "tonalRamp": ["#122a26", "#1e4239", "#315f58", "#4b8b7b", "#65b8a6", "#8fd3bf", "#b3ead6", "#e5fff5"] },
+      "beijing-accent": { "role": "tertiary", "displayName": "Beijing Amber", "canonical": "#d2a258", "tonalRamp": ["#302317", "#574021", "#805f2e", "#aa803f", "#d2a258", "#e6bd7b", "#f5d497", "#fff1cc"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Archive Display", "purpose": "Large hero and section headlines; dense, high-contrast Chinese-led composition." },
+      "label": { "displayName": "Archive Mono", "purpose": "Serials, city codes, counts, timestamps, and small status labels." }
+    },
+    "shadows": [
+      { "name": "badge-rest", "value": "0 10px 15px rgba(0,0,0,0.3)", "purpose": "Soft ambient depth under resting hexagonal badges." },
+      { "name": "badge-glow", "value": "0 0 11px color-mix(in srgb, var(--badge-accent) 43%, transparent) 0 12px 20px rgba(0,0,0,0.34)", "purpose": "State glow for an unlocked badge." },
+      { "name": "toast", "value": "0 16px 38px rgba(0,0,0,0.42)", "purpose": "Separate the temporary check-in confirmation from the archive surface." }
+    ],
+    "motion": [
+      { "name": "state-transition", "value": "230ms ease", "purpose": "Hover and state color transitions." },
+      { "name": "unlock-burst", "value": "1000ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Single authored unlock moment: scale, saturation, flare, and glow." },
+      { "name": "toast-in", "value": "380ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Check-in confirmation entrance." }
+    ],
+    "breakpoints": [
+      { "name": "wide", "value": "1120px" },
+      { "name": "tablet", "value": "840px" },
+      { "name": "phone", "value": "560px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Text Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A quiet gold-underlined action for beginning the collection.",
+      "html": "<a class=\"ds-text-action\" href=\"#collection\">开始收集</a>",
+      "css": ".ds-text-action { display:inline-flex; align-items:center; gap:7px; color:#f2d2a0; padding-bottom:8px; border-bottom:1px solid #c9a87a; font-size:13px; letter-spacing:.06em; transition:gap 180ms ease,color 180ms ease; } .ds-text-action:hover { gap:11px; color:#fff3de; } .ds-text-action:focus-visible { outline:2px solid #f2d2a0; outline-offset:4px; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "A compact rounded filter that exposes its count.",
+      "html": "<button class=\"ds-filter-chip\">已点亮 <span>03</span></button>",
+      "css": ".ds-filter-chip { min-height:31px; padding:0 11px; border:1px solid rgba(202,169,124,.2); border-radius:100px; color:#a99d8e; background:transparent; font-size:11px; transition:color 180ms ease,border-color 180ms ease,background-color 180ms ease; } .ds-filter-chip span { margin-left:3px; color:#c9a87a; font-family:'IBM Plex Mono',monospace; font-size:9px; } .ds-filter-chip:hover,.ds-filter-chip:focus-visible { border-color:#c9a87a; color:#f3eadb; background:rgba(202,169,124,.08); }"
+    },
+    {
+      "name": "Archive Status Card",
+      "kind": "card",
+      "refersTo": "card-archive",
+      "description": "A framed summary of personal completion by city.",
+      "html": "<aside class=\"ds-archive-card\"><span class=\"ds-archive-label\">ARCHIVE STATUS</span><strong class=\"ds-archive-number\">03</strong><h3>你的城市档案</h3></aside>",
+      "css": ".ds-archive-card { border:1px solid rgba(202,169,124,.54); background:#101415; box-shadow:inset 0 0 0 5px #101415,inset 0 0 0 6px rgba(202,169,124,.17); padding:25px 24px 22px; } .ds-archive-label { color:#766d62; font:10px/1.4 'IBM Plex Mono',monospace; letter-spacing:.12em; } .ds-archive-number { display:block; margin-top:26px; color:#f2d2a0; font-size:65px; font-weight:520; letter-spacing:-.1em; line-height:.8; } .ds-archive-card h3 { margin:24px 0 7px; color:#f3eadb; font-size:18px; font-weight:600; }"
+    },
+    {
+      "name": "Hexagonal Landmark Badge",
+      "kind": "custom",
+      "refersTo": "signature-hex-badge",
+      "description": "The core collectible: a six-sided archive mark that moves from grayscale to a city accent when checked in.",
+      "html": "<button class=\"ds-badge-hit\"><span class=\"ds-hex-badge\"><span class=\"ds-hex-core\"><span class=\"ds-hex-status\">沪 · OPEN</span><span class=\"ds-hex-landmark\">外滩</span><span class=\"ds-hex-serial\">CITY STAMP · 01</span></span></span></button>",
+      "css": ".ds-badge-hit { border:0; padding:0; background:transparent; } .ds-hex-badge { display:block; position:relative; aspect-ratio:.86; padding:7px; background:#df705d; clip-path:polygon(50% 0,94% 24%,94% 76%,50% 100%,6% 76%,6% 24%); filter:drop-shadow(0 0 11px rgba(223,112,93,.43)) drop-shadow(0 12px 20px rgba(0,0,0,.34)); } .ds-hex-core { position:absolute; inset:14px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px; background:#141919; color:#f3eadb; clip-path:polygon(50% 0,94% 24%,94% 76%,50% 100%,6% 76%,6% 24%); } .ds-hex-status,.ds-hex-serial { color:#ffb29a; font:8px/1.4 'IBM Plex Mono',monospace; letter-spacing:.12em; } .ds-hex-landmark { font-size:19px; font-weight:650; } .ds-badge-hit:focus-visible { outline:2px solid #f2d2a0; outline-offset:4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Illuminated City Archive",
+    "overview": "城市印记把黑色档案纸、旧金细线和六边形徽章组合成一张可操作的城市海报。页面的装饰不是独立的皮肤：每一条序号、每一座城市的色彩、每一枚徽章的边框，都在说明访客走过了什么。\n\n界面在未打卡时保持克制的灰阶，只有真实的状态变化才释放城市色彩与光。页面不依赖账户、地图或定位权限，先让一个人的到访顺序拥有清晰、可回看的形状。",
+    "keyCharacteristics": ["炭黑档案底与旧金细线", "城市色彩只在身份和解锁状态中出现", "六边形徽章作为核心内容对象", "单次点亮动效和本地时间日志"],
+    "rules": [
+      { "name": "The Archive Frame Rule", "body": "Major sections sit between hairline rules and the double page frame so the page reads like one continuous archive sheet.", "section": "layout" },
+      { "name": "The State Is The Color Rule", "body": "Keep an undiscovered badge in charcoal grayscale; spend coral, jade, or amber on the city identity and unlocked state.", "section": "colors" },
+      { "name": "The One Unlock Moment Rule", "body": "Use one authored burst for check-in: scale, saturation, edge flare, glow, and a time-confirming toast; respect reduced motion.", "section": "elevation" }
+    ],
+    "dos": ["Do use real icon-library marks for landmark identity.", "Do keep serials, counts, and timestamps in the mono label voice.", "Do preserve the hexagonal silhouette across desktop and mobile."],
+    "donts": ["Don't turn the archive into a generic rounded card dashboard.", "Don't use accent color as decoration on locked content.", "Don't remove the text timestamp or focus state when simplifying the visual treatment."]
+  }
+}
