@@ -155,6 +155,8 @@ function LandmarkIcon({ name, size = 32, weight = "regular" }) {
 }
 
 function HexBadge({ landmark, city, unlocked, featured = false, celebrating = false }) {
+  const serial = String(landmarks.indexOf(landmark) + 1).padStart(2, "0");
+
   return (
     <div
       className={`hex-badge ${featured ? "hex-badge--featured" : ""} ${unlocked ? "is-unlocked" : ""} ${celebrating ? "is-celebrating" : ""}`}
@@ -162,13 +164,11 @@ function HexBadge({ landmark, city, unlocked, featured = false, celebrating = fa
     >
       <div className="hex-badge__core">
         <div className="hex-badge__topline"><span>{city.short}</span><span>{unlocked ? "OPEN" : "LOCKED"}</span></div>
-        <div className="hex-badge__icon-wrap">
-          <LandmarkIcon name={landmark.icon} size={featured ? 86 : 48} weight={unlocked ? "duotone" : "regular"} />
+        <div className="hex-badge__art-wrap">
+          <img className="hex-badge__art" src={`./badges/${landmark.id}.png`} alt="" aria-hidden="true" draggable="false" />
           {!unlocked && <span className="hex-badge__lock"><LockKey aria-hidden="true" size={featured ? 20 : 15} weight="bold" /></span>}
         </div>
-        <div className="hex-badge__landmark">{landmark.title}</div>
-        <div className="hex-badge__english">{landmark.english}</div>
-        <div className="hex-badge__serial">CITY STAMP · {String(landmarks.indexOf(landmark) + 1).padStart(2, "0")}</div>
+        <div className="hex-badge__serial">CITY STAMP · {serial}</div>
       </div>
     </div>
   );

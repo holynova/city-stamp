@@ -20,7 +20,7 @@ State compared: initial locked collection and post-click unlocked collection. Th
 - Typography: warm metallic display hierarchy, condensed-feeling Chinese title, mono archival labels, and clear contrast are present. IBM Plex Sans is self-hosted for Latin UI text with the local Chinese system fallback for glyph coverage.
 - Spacing and layout rhythm: the page frame, hairline separators, centered hero badge, collection index, and 5/4/3/2-column responsive grid are visible and stable. The 1080 comparison keeps the title and first badge row within the same reading sequence.
 - Colors and tokens: charcoal-black ground and warm gold rules match the source language; Shanghai coral, Suzhou jade, and Beijing amber are reserved for city identity and unlocked state.
-- Image quality and asset fidelity: the source's cut-paper landmark scenes are intentionally adapted into Phosphor's real duotone icon library. No user-supplied landmark raster assets were available; the adaptation preserves legible landmark content, fast static loading, and the requested grayscale-to-luminous state change. A future illustrated asset pack remains optional polish, not a blocker for this prototype.
+- Image quality and asset fidelity: the source's cut-paper landmark scenes are implemented as 30 generated transparent PNG artworks, one for each landmark, with a shared paper-cut / screenprint direction. The CSS badge wrapper supplies the exact regular-hex silhouette while the image supplies the landmark content; the locked state desaturates it and the unlocked state restores city color and glow. The web-sized assets are resized to 640 × 640 to keep the set practical for a static site.
 - Copy and content: Shanghai, Suzhou, and Beijing each contain exactly 10 authored landmark records; locked/unlocked labels, local timestamps, empty states, and reset copy are present.
 
 ## Interaction checks
@@ -42,7 +42,7 @@ State compared: initial locked collection and post-click unlocked collection. Th
 
 ## Open questions
 
-- Optional future direction: replace the icon adaptation with a commissioned or generated paper-cut illustration set for all 30 landmarks.
+- Optional future direction: commission a more historically exact illustrated set or add a curator review pass to the generated landmark artworks.
 - Product decisions still open: account sync, GPS verification, map links, and share/export.
 
 ## Finish review

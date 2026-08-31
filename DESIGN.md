@@ -60,7 +60,7 @@ components:
 
 **Creative North Star: “The Illuminated City Archive”**
 
-城市印记把黑色档案纸、旧金细线和六边形徽章组合成一张可操作的城市海报。页面的装饰不是独立的皮肤：每一条序号、每一座城市的色彩、每一枚徽章的边框，都在说明访客走过了什么。
+城市印记把黑色档案纸、旧金细线、透明地标插画和六边形徽章组合成一张可操作的城市海报。页面的装饰不是独立的皮肤：每一条序号、每一座城市的色彩、每一枚徽章的图像，都在说明访客走过了什么。
 
 未打卡时，内容保持克制的灰阶；只有真实的状态变化才释放上海朱砂、苏州青绿或北京琥珀。访客不需要账户、地图或定位权限，就能把一次到访变成一条清晰、可回看的个人档案。
 
@@ -112,12 +112,12 @@ The archive status card is a square framed panel with a subtle inset rule, a lar
 
 ### Hexagonal landmark badge
 
-Every landmark is a button containing a layered six-sided mark: city code/status, duotone landmark icon, Chinese name, English label, district, and serial. A locked badge is grayscale with a lock state; a checked-in badge has an accent shell, brighter ink, a glow, and its recorded local time. Clicking an already checked-in badge is safe and reports the existing record instead of duplicating it.
+Every landmark is a button containing a layered six-sided mark: city code/status, generated transparent landmark artwork, and a small serial. The landmark name, district, state, and recorded time sit in the archive copy beneath the image so the artwork—not a text glyph—is the badge's content. A locked badge applies grayscale and reduced contrast to the artwork; a checked-in badge restores its city palette, adds a glow, and records the local time. Clicking an already checked-in badge is safe and reports the existing record instead of duplicating it.
 
 ## Do’s and Don’ts
 
 - Do keep the page frame and hairline rules continuous across sections.
-- Do use real icon-library marks for landmark identity and keep the six-sided silhouette stable.
+- Do use a real generated landmark artwork for each badge and keep the six-sided silhouette stable.
 - Do keep counts, serials, and timestamps in the mono archival voice.
 - Do preserve the text state (`待发现`, `已点亮`, and the recorded time) when simplifying the visual treatment.
 - Don’t turn the archive into a generic rounded-card dashboard.

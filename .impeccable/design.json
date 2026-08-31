@@ -62,20 +62,20 @@
       "kind": "custom",
       "refersTo": "signature-hex-badge",
       "description": "The core collectible: a six-sided archive mark that moves from grayscale to a city accent when checked in.",
-      "html": "<button class=\"ds-badge-hit\"><span class=\"ds-hex-badge\"><span class=\"ds-hex-core\"><span class=\"ds-hex-status\">沪 · OPEN</span><span class=\"ds-hex-landmark\">外滩</span><span class=\"ds-hex-serial\">CITY STAMP · 01</span></span></span></button>",
-      "css": ".ds-badge-hit { border:0; padding:0; background:transparent; } .ds-hex-badge { display:block; position:relative; aspect-ratio:.86; padding:7px; background:#df705d; clip-path:polygon(50% 0,94% 24%,94% 76%,50% 100%,6% 76%,6% 24%); filter:drop-shadow(0 0 11px rgba(223,112,93,.43)) drop-shadow(0 12px 20px rgba(0,0,0,.34)); } .ds-hex-core { position:absolute; inset:14px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px; background:#141919; color:#f3eadb; clip-path:polygon(50% 0,94% 24%,94% 76%,50% 100%,6% 76%,6% 24%); } .ds-hex-status,.ds-hex-serial { color:#ffb29a; font:8px/1.4 'IBM Plex Mono',monospace; letter-spacing:.12em; } .ds-hex-landmark { font-size:19px; font-weight:650; } .ds-badge-hit:focus-visible { outline:2px solid #f2d2a0; outline-offset:4px; }"
+      "html": "<button class=\"ds-badge-hit\"><span class=\"ds-hex-badge\"><span class=\"ds-hex-core\"><span class=\"ds-hex-status\">沪 · OPEN</span><img class=\"ds-badge-art\" src=\"./badges/shanghai-bund.png\" alt=\"\"><span class=\"ds-hex-serial\">CITY STAMP · 01</span></span></span></button>",
+      "css": ".ds-badge-hit { border:0; padding:0; background:transparent; } .ds-hex-badge { --hex-ratio:.8660254; display:block; position:relative; aspect-ratio:var(--hex-ratio); background:#df705d; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); filter:drop-shadow(0 0 11px rgba(223,112,93,.43)) drop-shadow(0 12px 20px rgba(0,0,0,.34)); } .ds-hex-core { position:absolute; top:50%; left:50%; width:calc(100% - 28px); aspect-ratio:var(--hex-ratio); transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px; background:#141919; color:#f3eadb; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); } .ds-badge-art { width:100%; height:100%; object-fit:contain; filter:grayscale(1) contrast(.86) brightness(1.1) opacity(.7); } .ds-hex-status,.ds-hex-serial { color:#ffb29a; font:8px/1.4 'IBM Plex Mono',monospace; letter-spacing:.12em; } .ds-badge-hit:focus-visible { outline:2px solid #f2d2a0; outline-offset:4px; }"
     }
   ],
   "narrative": {
     "northStar": "The Illuminated City Archive",
-    "overview": "城市印记把黑色档案纸、旧金细线和六边形徽章组合成一张可操作的城市海报。页面的装饰不是独立的皮肤：每一条序号、每一座城市的色彩、每一枚徽章的边框，都在说明访客走过了什么。\n\n界面在未打卡时保持克制的灰阶，只有真实的状态变化才释放城市色彩与光。页面不依赖账户、地图或定位权限，先让一个人的到访顺序拥有清晰、可回看的形状。",
+    "overview": "城市印记把黑色档案纸、旧金细线、透明地标插画和六边形徽章组合成一张可操作的城市海报。页面的装饰不是独立的皮肤：每一条序号、每一座城市的色彩、每一枚徽章的图像，都在说明访客走过了什么。\n\n界面在未打卡时保持克制的灰阶，只有真实的状态变化才释放城市色彩与光。页面不依赖账户、地图或定位权限，先让一个人的到访顺序拥有清晰、可回看的形状。",
     "keyCharacteristics": ["炭黑档案底与旧金细线", "城市色彩只在身份和解锁状态中出现", "六边形徽章作为核心内容对象", "单次点亮动效和本地时间日志"],
     "rules": [
       { "name": "The Archive Frame Rule", "body": "Major sections sit between hairline rules and the double page frame so the page reads like one continuous archive sheet.", "section": "layout" },
       { "name": "The State Is The Color Rule", "body": "Keep an undiscovered badge in charcoal grayscale; spend coral, jade, or amber on the city identity and unlocked state.", "section": "colors" },
       { "name": "The One Unlock Moment Rule", "body": "Use one authored burst for check-in: scale, saturation, edge flare, glow, and a time-confirming toast; respect reduced motion.", "section": "elevation" }
     ],
-    "dos": ["Do use real icon-library marks for landmark identity.", "Do keep serials, counts, and timestamps in the mono label voice.", "Do preserve the hexagonal silhouette across desktop and mobile."],
+    "dos": ["Do use one generated transparent landmark artwork per badge.", "Do keep serials, counts, and timestamps in the mono label voice.", "Do preserve the regular hexagonal silhouette across desktop and mobile."],
     "donts": ["Don't turn the archive into a generic rounded card dashboard.", "Don't use accent color as decoration on locked content.", "Don't remove the text timestamp or focus state when simplifying the visual treatment."]
   }
 }
