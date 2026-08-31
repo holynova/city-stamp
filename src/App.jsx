@@ -138,6 +138,11 @@ function getStoredProgress() {
   }
 }
 
+function trackEvent(name, data) {
+  if (typeof window === "undefined") return;
+  window.umami?.track?.(name, data);
+}
+
 function formatDate(value) {
   if (!value) return "尚未记录";
   return new Intl.DateTimeFormat("zh-CN", {
@@ -210,10 +215,12 @@ function App() {
   }, [notice]);
 
   function selectCity(cityId) {
+    const city = cities.find((item) => item.id === cityId);
     setActiveCityId(cityId);
     const firstLandmark = landmarks.find((landmark) => landmark.city === cityId);
     if (firstLandmark) setSelectedId(firstLandmark.id);
     setFilter("all");
+    if (city) trackEvent("city-select", { city: city.id });
   }
 
   function handleLandmarkClick(landmark) {
@@ -226,6 +233,7 @@ function App() {
     const checkedAt = new Date().toISOString();
     setProgress((current) => ({ ...current, [landmark.id]: { checkedAt } }));
     setCelebratingId(landmark.id);
+    trackEvent("landmark-checkin", { city: city.id, landmark: landmark.id });
     setNotice({ type: "success", title: `${city.name} · ${landmark.title} 已点亮`, detail: `记录于 ${formatDate(checkedAt)} · 这枚徽章属于你了` });
     window.setTimeout(() => setCelebratingId(null), 1500);
   }
@@ -235,6 +243,7 @@ function App() {
     setSelectedId(landmarks[0].id);
     setActiveCityId("shanghai");
     setFilter("all");
+    trackEvent("archive-reset");
     setNotice({ type: "info", title: "档案已归零", detail: "所有徽章回到待发现状态。" });
   }
 
@@ -273,7 +282,7 @@ function App() {
                 <span><ListChecks aria-hidden="true" size={17} weight="bold" /> 30 PLACES TO DISCOVER</span>
                 <span><Clock aria-hidden="true" size={17} weight="bold" /> 本地时间记录</span>
               </div>
-              <a className="text-link" href="#collection">开始收集 <ArrowUpRight aria-hidden="true" size={17} weight="bold" /></a>
+              <a className="text-link" href="#collection" onClick={() => trackEvent("start-collecting")}>开始收集 <ArrowUpRight aria-hidden="true" size={17} weight="bold" /></a>
             </div>
 
             <div className="spotlight-panel" style={{ "--spotlight-accent": selectedCity.accent }}>
@@ -343,7 +352,15 @@ function App() {
             </aside>
           </section>
         </main>
-        <footer className="site-footer"><span>城市印记 · 城市不是清单，是你走过的顺序。</span><span>LOCAL ARCHIVE · v1.0</span></footer>
+        <footer className="site-footer">
+          <span>城市印记 · 城市不是清单，是你走过的顺序。</span>
+          <div className="site-footer__links">
+            <span>LOCAL ARCHIVE · v1.0</span>
+            <a className="site-footer__repo" href="https://github.com/holynova/city-stamp" target="_blank" rel="noreferrer" onClick={() => trackEvent("github-repo-click")}>
+              GitHub Repo <ArrowUpRight aria-hidden="true" size={13} weight="bold" />
+            </a>
+          </div>
+        </footer>
       </div>
       {notice && <div className={`toast toast--${notice.type}`} role="status" aria-live="polite"><span className="toast__icon">{notice.type === "success" ? <Sparkle aria-hidden="true" size={20} weight="fill" /> : <Check aria-hidden="true" size={19} weight="bold" />}</span><span className="toast__copy"><strong>{notice.title}</strong><small>{notice.detail}</small></span></div>}
     </div>

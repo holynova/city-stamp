@@ -1,8 +1,18 @@
 {
   "name": "city-stamp",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "城市地标六边形徽章打卡网站",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holynova/city-stamp.git"
+  },
+  "homepage": "https://holynova.github.io/city-stamp/",
+  "bugs": {
+    "url": "https://github.com/holynova/city-stamp/issues"
+  },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prepare-sites-build.mjs",
