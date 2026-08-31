@@ -32,6 +32,7 @@ The site is used on a phone while traveling and on a desktop when planning or re
 - Exactly 10 landmark badges per city.
 - Every landmark badge uses a generated transparent landmark artwork inside the hexagon; the text label remains in the archive metadata below it.
 - Each badge starts locked and grayscale, then records a local check-in time and changes to a vivid, luminous unlocked state.
+- A check-in wall arranges every unlocked badge into a zoomable, interlocking hexagonal mosaic with a focused detail inspector.
 - City tabs, collection progress, landmark detail, and reset/check-in actions are part of the core experience.
 - The reference image establishes a hexagonal achievement / heraldic motif; it is a binding visual reference, not a source for factual landmark imagery.
 - Persistence is browser-local for this prototype. Login, sync, GPS verification, maps, and social sharing remain undecided.

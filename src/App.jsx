@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Archive,
   ArrowClockwise,
@@ -161,18 +161,69 @@ function LandmarkIcon({ name, size = 32, weight = "regular" }) {
 
 function HexBadge({ landmark, city, unlocked, featured = false, celebrating = false }) {
   const serial = String(landmarks.indexOf(landmark) + 1).padStart(2, "0");
+  const badgeRef = useRef(null);
+  const pointerRef = useRef({ x: 0.5, y: 0.5, active: false });
+  const frameRef = useRef(0);
+
+  function requestMotionFrame() {
+    if (frameRef.current) return;
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = 0;
+      const badge = badgeRef.current;
+      if (!badge) return;
+      const { x, y, active } = pointerRef.current;
+      const inverseX = 0.5 - x;
+      const inverseY = 0.5 - y;
+      badge.style.setProperty("--tilt-x", `${active ? inverseY * 13 : 0}deg`);
+      badge.style.setProperty("--tilt-y", `${active ? -inverseX * 15 : 0}deg`);
+      badge.style.setProperty("--art-shift-x", `${active ? inverseX * 8 : 0}px`);
+      badge.style.setProperty("--art-shift-y", `${active ? inverseY * 6 : 0}px`);
+      badge.style.setProperty("--sheen-shift-x", `${active ? inverseX * 24 : 0}px`);
+      badge.style.setProperty("--sheen-shift-y", `${active ? inverseY * 18 : 0}px`);
+      badge.style.setProperty("--glare-x", `${50 + (active ? inverseX * 72 : 0)}%`);
+      badge.style.setProperty("--glare-y", `${50 + (active ? inverseY * 56 : 0)}%`);
+      badge.style.setProperty("--sheen-opacity", active ? "1" : "0");
+    });
+  }
+
+  function handlePointerMove(event) {
+    if (event.pointerType === "touch") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerRef.current = {
+      x: Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width)),
+      y: Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height)),
+      active: true,
+    };
+    requestMotionFrame();
+  }
+
+  function handlePointerLeave() {
+    pointerRef.current = { x: 0.5, y: 0.5, active: false };
+    requestMotionFrame();
+  }
+
+  useEffect(() => () => {
+    if (frameRef.current) window.cancelAnimationFrame(frameRef.current);
+  }, []);
 
   return (
     <div
+      ref={badgeRef}
       className={`hex-badge ${featured ? "hex-badge--featured" : ""} ${unlocked ? "is-unlocked" : ""} ${celebrating ? "is-celebrating" : ""}`}
       style={{ "--badge-accent": city.accent, "--badge-accent-soft": city.accentSoft, "--badge-accent-ink": city.accentInk }}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      onMouseMove={handlePointerMove}
+      onMouseLeave={handlePointerLeave}
     >
       <div className="hex-badge__core">
-        <div className="hex-badge__topline"><span>{city.short}</span><span>{unlocked ? "OPEN" : "LOCKED"}</span></div>
+        <div className="hex-badge__glass" aria-hidden="true" />
         <div className="hex-badge__art-wrap">
           <img className="hex-badge__art" src={`./badges/${landmark.id}.png`} alt="" aria-hidden="true" draggable="false" />
-          {!unlocked && <span className="hex-badge__lock"><LockKey aria-hidden="true" size={featured ? 20 : 15} weight="bold" /></span>}
         </div>
+        <div className="hex-badge__sheen" aria-hidden="true" />
+        <div className="hex-badge__topline"><span>{city.short}</span><span>{unlocked ? "OPEN" : "LOCKED"}</span></div>
+        {!unlocked && <span className="hex-badge__lock"><LockKey aria-hidden="true" size={featured ? 20 : 15} weight="bold" /></span>}
         <div className="hex-badge__serial">CITY STAMP · {serial}</div>
       </div>
     </div>
@@ -186,6 +237,8 @@ function App() {
   const [selectedId, setSelectedId] = useState(landmarks[0].id);
   const [celebratingId, setCelebratingId] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [wallSelectedId, setWallSelectedId] = useState(null);
+  const [wallZoom, setWallZoom] = useState(1);
 
   const activeCity = cities.find((city) => city.id === activeCityId) || cities[0];
   const selectedLandmark = landmarks.find((landmark) => landmark.id === selectedId) || landmarks[0];
@@ -203,6 +256,14 @@ function App() {
 
   const recentLandmarks = useMemo(() => landmarks.filter((landmark) => progress[landmark.id])
     .sort((a, b) => new Date(progress[b.id].checkedAt) - new Date(progress[a.id].checkedAt)).slice(0, 4), [progress]);
+  const checkedLandmarks = useMemo(() => landmarks.filter((landmark) => progress[landmark.id])
+    .sort((a, b) => new Date(progress[b.id].checkedAt) - new Date(progress[a.id].checkedAt)), [progress]);
+  const wallRows = useMemo(() => {
+    const rows = [];
+    for (let index = 0; index < checkedLandmarks.length; index += 5) rows.push(checkedLandmarks.slice(index, index + 5));
+    return rows;
+  }, [checkedLandmarks]);
+  const wallSelectedLandmark = checkedLandmarks.find((landmark) => landmark.id === wallSelectedId) || checkedLandmarks[0];
 
   useEffect(() => {
     if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
@@ -213,6 +274,10 @@ function App() {
     const timeout = window.setTimeout(() => setNotice(null), 4200);
     return () => window.clearTimeout(timeout);
   }, [notice]);
+
+  useEffect(() => {
+    setWallSelectedId((current) => (current && checkedLandmarks.some((landmark) => landmark.id === current) ? current : checkedLandmarks[0]?.id || null));
+  }, [checkedLandmarks]);
 
   function selectCity(cityId) {
     const city = cities.find((item) => item.id === cityId);
@@ -247,6 +312,15 @@ function App() {
     setNotice({ type: "info", title: "档案已归零", detail: "所有徽章回到待发现状态。" });
   }
 
+  function selectWallLandmark(landmark) {
+    setWallSelectedId(landmark.id);
+    trackEvent("wall-badge-select", { city: landmark.city, landmark: landmark.id });
+  }
+
+  function changeWallZoom(delta) {
+    setWallZoom((current) => Math.min(1.6, Math.max(0.75, Number((current + delta).toFixed(2)))));
+  }
+
   const activeFilters = [
     { id: "all", label: "全部", count: landmarks.filter((landmark) => landmark.city === activeCity.id).length },
     { id: "unlocked", label: "已点亮", count: cityUnlocked },
@@ -263,6 +337,7 @@ function App() {
           </a>
           <nav className="site-nav" aria-label="主导航">
             <a className="site-nav__link is-active" href="#collection">藏品</a>
+            <a className="site-nav__link" href="#wall">打卡墙</a>
             <a className="site-nav__link" href="#journal">足迹</a>
           </nav>
           <div className="header-progress" aria-label={`已点亮 ${totalUnlocked} 枚徽章，共 30 枚`}>
@@ -335,9 +410,46 @@ function App() {
             {visibleLandmarks.length === 0 && <div className="empty-state"><Compass aria-hidden="true" size={38} weight="duotone" /><strong>{filter === "unlocked" ? "这座城还没有点亮的徽章" : "这座城的十枚徽章都已收入档案"}</strong><span>{filter === "unlocked" ? "去发现一处地标，让第一枚印记开始发光。" : "换一个筛选，或继续回味你的城市足迹。"}</span></div>}
           </section>
 
+          <section className="wall-section" id="wall" aria-labelledby="wall-title">
+            <div className="section-heading section-heading--wall">
+              <div><div className="section-heading__index">02 · CHECK-IN WALL</div><h2 id="wall-title">把走过的地方，拼成一面墙。</h2></div>
+              <p>所有已点亮的徽章会靠在一起。点击一枚，放大查看它留下的城市细节。</p>
+            </div>
+            {checkedLandmarks.length > 0 ? <div className="wall-layout">
+              <div className="wall-stage" aria-label="已打卡徽章墙">
+                <div className="wall-stage__topline"><span>{String(checkedLandmarks.length).padStart(2, "0")} STAMPS ARCHIVED</span><span>HEXAGONAL MOSAIC</span></div>
+                <div className="wall-stage__viewport">
+                  <div className="wall-stage__mosaic" style={{ "--wall-scale": wallZoom }}>
+                    {wallRows.map((row, rowIndex) => <div className={`wall-stage__row ${rowIndex % 2 === 1 ? "is-offset" : ""}`} key={row.map((landmark) => landmark.id).join("-")}>
+                      {row.map((landmark) => {
+                        const city = cities.find((item) => item.id === landmark.city) || cities[0];
+                        return <button className={`wall-stage__tile ${wallSelectedLandmark?.id === landmark.id ? "is-selected" : ""}`} key={landmark.id} type="button" onClick={() => selectWallLandmark(landmark)} aria-label={`查看${landmark.title}徽章详情`}>
+                          <HexBadge landmark={landmark} city={city} unlocked />
+                        </button>;
+                      })}
+                    </div>)}
+                  </div>
+                </div>
+              </div>
+              <aside className="wall-inspector" aria-live="polite" aria-label="徽章详情">
+                <div className="wall-inspector__topline"><span>DETAIL VIEW</span><span>{wallSelectedLandmark ? String(landmarks.indexOf(wallSelectedLandmark) + 1).padStart(2, "0") : "--"} / 30</span></div>
+                <div className="wall-inspector__preview">
+                  {wallSelectedLandmark && (() => {
+                    const city = cities.find((item) => item.id === wallSelectedLandmark.city) || cities[0];
+                    return <HexBadge landmark={wallSelectedLandmark} city={city} unlocked featured />;
+                  })()}
+                </div>
+                {wallSelectedLandmark && (() => {
+                  const city = cities.find((item) => item.id === wallSelectedLandmark.city) || cities[0];
+                  return <><div className="wall-inspector__copy"><span>{city.name} · {city.english}</span><strong>{wallSelectedLandmark.title}</strong><small>{wallSelectedLandmark.description}</small><time dateTime={progress[wallSelectedLandmark.id].checkedAt}>已记录 · {formatDate(progress[wallSelectedLandmark.id].checkedAt)}</time></div><div className="wall-inspector__controls"><span>墙面缩放 · {Math.round(wallZoom * 100)}%</span><div><button type="button" onClick={() => changeWallZoom(-0.15)} disabled={wallZoom <= 0.75} aria-label="缩小徽章墙">−</button><button type="button" onClick={() => setWallZoom(1)} aria-label="重置徽章墙缩放">100%</button><button type="button" onClick={() => changeWallZoom(0.15)} disabled={wallZoom >= 1.6} aria-label="放大徽章墙">＋</button></div></div></>;
+                })()}
+              </aside>
+            </div> : <div className="wall-empty"><Hexagon aria-hidden="true" size={42} weight="duotone" /><strong>打卡墙还是一张空白底纸。</strong><span>点亮第一枚徽章，它会成为这面墙的起点。</span><a className="text-link" href="#collection">去发现第一处地标 <ArrowUpRight aria-hidden="true" size={17} weight="bold" /></a></div>}
+          </section>
+
           <section className="journal-section" id="journal" aria-labelledby="journal-title">
             <div className="journal-section__main">
-              <div className="section-heading section-heading--compact"><div><div className="section-heading__index">02 · MEMORY LOG</div><h2 id="journal-title">最近点亮的地方。</h2></div><span className="journal-section__count">{String(totalUnlocked).padStart(2, "0")} MOMENTS</span></div>
+              <div className="section-heading section-heading--compact"><div><div className="section-heading__index">03 · MEMORY LOG</div><h2 id="journal-title">最近点亮的地方。</h2></div><span className="journal-section__count">{String(totalUnlocked).padStart(2, "0")} MOMENTS</span></div>
               {recentLandmarks.length > 0 ? <div className="journal-list">{recentLandmarks.map((landmark) => {
                 const city = cities.find((item) => item.id === landmark.city) || cities[0];
                 return <button className="journal-entry" key={landmark.id} type="button" onClick={() => { setActiveCityId(city.id); setSelectedId(landmark.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}><span className="journal-entry__icon" style={{ "--entry-accent": city.accent }}><LandmarkIcon name={landmark.icon} size={22} weight="duotone" /></span><span className="journal-entry__copy"><strong>{landmark.title}</strong><small>{city.name} · {landmark.district}</small></span><time dateTime={progress[landmark.id].checkedAt}>{formatDate(progress[landmark.id].checkedAt)}</time><ArrowUpRight aria-hidden="true" size={19} weight="bold" /></button>;

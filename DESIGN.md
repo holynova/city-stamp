@@ -84,13 +84,13 @@ The display style is dense, warm, and slightly compressed through a `-0.075em` t
 
 ## Layout
 
-The page is one continuous archival sheet: a double gold frame surrounds the content and fine rules separate the hero, collection, journal, and archive status. The desktop hero is a two-column composition with the manifesto on the left and the featured hex badge on the right. The collection grid shows five columns on wide screens, then four, three, and two columns at `1120px`, `840px`, and `560px` breakpoints.
+The page is one continuous archival sheet: a double gold frame surrounds the content and fine rules separate the hero, collection, check-in wall, journal, and archive status. The desktop hero is a two-column composition with the manifesto on the left and the featured hex badge on the right. The collection grid shows five columns on wide screens, then four, three, and two columns at `1120px`, `840px`, and `560px` breakpoints. The check-in wall uses an overflow-safe, staggered hex mosaic with a separate detail view and zoom control.
 
 The frame uses a `max-width` of `1440px` with a `19px` outer margin. Major sections use approximately `69px` vertical spacing. On phones, the hero stacks, city tabs become a full-width segmented row, and the journal/archive area becomes a single column without horizontal overflow.
 
 ## Elevation & Depth
 
-Depth is quiet and material: dark panels, inset double rules, a soft ambient shadow under badges, and a state glow only after check-in. The primary badge glow is built from a warm city-colored drop shadow plus a deeper black ambient shadow. The one-time unlock moment combines a short scale/saturation burst, an edge flare, and a toast that confirms the saved timestamp. `prefers-reduced-motion` removes the authored movement while preserving the final state and contrast.
+Depth is quiet and material: dark panels, inset double rules, a soft ambient shadow under badges, and a state glow only after check-in. The badge surface combines a translucent glass core, blurred backing, artwork bleed, and a pointer-driven Glass Glare Tilt Card: perspective rotation, inverse artwork parallax, and a specular sheen move together to suggest refraction. The one-time unlock moment combines a short scale/saturation burst, an edge flare, and a toast that confirms the saved timestamp. `prefers-reduced-motion` removes the authored movement while preserving the final state and contrast.
 
 ## Shapes
 
@@ -114,11 +114,17 @@ The archive status card is a square framed panel with a subtle inset rule, a lar
 
 Every landmark is a button containing a layered six-sided mark: city code/status, generated transparent landmark artwork, and a small serial. The landmark name, district, state, and recorded time sit in the archive copy beneath the image so the artwork—not a text glyph—is the badge's content. A locked badge applies grayscale and reduced contrast to the artwork; a checked-in badge restores its city palette, adds a glow, and records the local time. Clicking an already checked-in badge is safe and reports the existing record instead of duplicating it.
 
+### Check-in wall
+
+The wall is a focused memory surface, not a second collection list. It packs checked-in badges into a staggered hexagonal mosaic, keeps a selected badge above its neighbors, and exposes its artwork, landmark copy, time, and wall zoom in a responsive inspector. On phones, the mosaic scrolls inside its own viewport so the page frame never acquires horizontal overflow.
+
 ## Do’s and Don’ts
 
 - Do keep the page frame and hairline rules continuous across sections.
 - Do use a real generated landmark artwork for each badge and keep the six-sided silhouette stable.
 - Do keep counts, serials, and timestamps in the mono archival voice.
+- Do let checked-in badges touch and overlap in the wall so the mosaic reads as one assembled object.
+- Do keep the glass glare tilt pointer-driven, inverse to the artwork shift, and disabled for reduced-motion users.
 - Do preserve the text state (`待发现`, `已点亮`, and the recorded time) when simplifying the visual treatment.
 - Don’t turn the archive into a generic rounded-card dashboard.
 - Don’t spend city accent color on locked content or unrelated decoration.
