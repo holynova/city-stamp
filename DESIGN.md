@@ -72,9 +72,9 @@ components:
 - `#a99d8e` Archive Muted is for supporting copy and inactive controls.
 - `#c9a87a` Old Gold carries rules, borders, serials, and the quiet archive structure.
 - `#f2d2a0` Paper Gold is reserved for high-priority headings, actions, and completed counts.
-- `#df705d` Shanghai Coral, `#65b8a6` Suzhou Jade, and `#d2a258` Beijing Amber identify cities and unlocked badges.
+- `#df705d` Shanghai Coral, `#65b8a6` Suzhou Jade, `#d2a258` Beijing Amber, and `#76b8a4` Hangzhou Lake Jade identify cities and unlocked badges.
 
-The state rule is intentional: undiscovered badges stay charcoal and desaturated; city colors appear in the active tab and the unlocked badge shell, where they communicate progress rather than decorate locked content.
+The state rule is intentional: undiscovered badges stay charcoal and desaturated; city colors appear in the active tab and unlocked artwork, where they communicate progress rather than decorate locked content. Shanghai, Suzhou, Beijing, and Hangzhou each contribute ten landmark badges.
 
 ## Typography
 
@@ -84,17 +84,17 @@ The display style is dense, warm, and slightly compressed through a `-0.075em` t
 
 ## Layout
 
-The page is one continuous archival sheet: a double gold frame surrounds the content and fine rules separate the hero, collection, check-in wall, journal, and archive status. The desktop hero is a two-column composition with the manifesto on the left and the featured hex badge on the right. The collection grid shows five columns on wide screens, then four, three, and two columns at `1120px`, `840px`, and `560px` breakpoints. The check-in wall uses an overflow-safe, staggered hex mosaic with a separate detail view and zoom control.
+The page is one continuous archival sheet: a double gold frame surrounds the content and fine rules separate the hero, collection, check-in wall, journal, and archive status. The desktop hero is a two-column composition with the manifesto on the left and the featured hex badge on the right. The collection grid shows five columns on wide screens, then four, three, and two columns at `1120px`, `840px`, and `560px` breakpoints. The check-in wall uses a dense, overflow-safe, staggered hex mosaic on one shared five-column coordinate system, with a separate detail view and zoom control.
 
-The frame uses a `max-width` of `1440px` with a `19px` outer margin. Major sections use approximately `69px` vertical spacing. On phones, the hero stacks, city tabs become a full-width segmented row, and the journal/archive area becomes a single column without horizontal overflow.
+The frame uses a `max-width` of `1440px` with a `19px` outer margin. Major sections use approximately `69px` vertical spacing. On phones, the hero stacks, city tabs become a full-width segmented row, the wall keeps its own scrollable mosaic viewport, and the journal/archive area becomes a single column without page-level horizontal overflow.
 
 ## Elevation & Depth
 
-Depth is quiet and material: dark panels, inset double rules, a soft ambient shadow under badges, and a state glow only after check-in. The badge surface combines a translucent glass core, blurred backing, artwork bleed, and a pointer-driven Glass Glare Tilt Card: perspective rotation, inverse artwork parallax, and a specular sheen move together to suggest refraction. The one-time unlock moment combines a short scale/saturation burst, an edge flare, and a toast that confirms the saved timestamp. `prefers-reduced-motion` removes the authored movement while preserving the final state and contrast.
+Depth is quiet and material: dark panels, inset double rules, a soft ambient shadow under badges, and a state glow only after check-in. The generated artwork supplies the complete visible hexagonal badge surface; the wrapper only clips content and adds a pointer-driven Glass Glare Tilt Card: perspective rotation, inverse artwork parallax, and a specular sheen move together to suggest refraction. The one-time unlock moment combines a short scale/saturation burst and a toast that confirms the saved timestamp. `prefers-reduced-motion` removes the authored movement while preserving the final state and contrast.
 
 ## Shapes
 
-Hexagons are the signature shape. Badge shells and cores use a six-point clip path, with an inset core that creates the layered emblem seen in the reference poster. Cards remain square and archival; compact filters use a fully rounded pill (`100px`) only where the control needs to read as a chip. Focus rings are warm gold, visible, and offset from the clipped badge silhouette.
+Hexagons are the signature shape. Each generated landmark image already contains its own complete hexagonal bezel, so the CSS wrapper does not draw a second border or inset shell; it only keeps the artwork and overlays aligned to one silhouette. Cards remain square and archival; compact filters use a fully rounded pill (`100px`) only where the control needs to read as a chip. Focus rings are warm gold, visible, and offset from the clipped badge silhouette.
 
 ## Components
 
@@ -112,20 +112,26 @@ The archive status card is a square framed panel with a subtle inset rule, a lar
 
 ### Hexagonal landmark badge
 
-Every landmark is a button containing a layered six-sided mark: city code/status, generated transparent landmark artwork, and a small serial. The landmark name, district, state, and recorded time sit in the archive copy beneath the image so the artwork—not a text glyph—is the badge's content. A locked badge applies grayscale and reduced contrast to the artwork; a checked-in badge restores its city palette, adds a glow, and records the local time. Clicking an already checked-in badge is safe and reports the existing record instead of duplicating it.
+Every landmark is a button containing only the generated six-sided landmark artwork; city codes, serials, and status copy stay outside the image. The landmark name, district, state, and recorded time sit in the archive copy beneath the image so the artwork—not a text glyph—is the badge's content. A locked badge applies grayscale and reduced contrast to the artwork; a checked-in badge restores its city palette, adds a glow, and records the local time. The artwork tilts as one rigid surface toward the pointer while the sheen moves inversely to suggest refraction. Clicking an already checked-in badge toggles it back to undiscovered, removes its record from the wall, and explains the reversal. A separate explicit action opens a full-screen 3D detail view without changing progress.
 
 ### Check-in wall
 
-The wall is a focused memory surface, not a second collection list. It packs checked-in badges into a staggered hexagonal mosaic, keeps a selected badge above its neighbors, and exposes its artwork, landmark copy, time, and wall zoom in a responsive inspector. On phones, the mosaic scrolls inside its own viewport so the page frame never acquires horizontal overflow.
+The wall is a focused memory surface, not a second collection list. It places checked-in badges on exact staggered pointy-top hexagonal rows whose shared edges touch without overlap, balancing rows into a dense 5/4 honeycomb floor instead of centering each row independently. The wall frame fits the mosaic vertically, while zoom can expand it inside its own scrollable viewport. Selecting a wall tile opens the full-screen 3D detail view; the inspector remains a compact fallback with artwork, landmark copy, and time. Selection uses focus and accent glow rather than expanding a tile. On phones, the mosaic scrolls inside its own viewport so the page frame never acquires horizontal overflow.
+
+### Share card
+
+The share card is a portable version of the archive: a fixed-format PNG draws the checked-in wall, total progress, four city counts, and the public archive URL. Its modal keeps the generated image primary, with download, native share, and copy-link actions as explicit fallbacks. It inherits the charcoal paper, old-gold rules, city accents, and square archival corners rather than introducing a new social-media skin.
 
 ## Do’s and Don’ts
 
 - Do keep the page frame and hairline rules continuous across sections.
 - Do use a real generated landmark artwork for each badge and keep the six-sided silhouette stable.
+- Do keep generated badge faces free of CSS/status text overlays; place metadata beside or below the image.
 - Do keep counts, serials, and timestamps in the mono archival voice.
-- Do let checked-in badges touch and overlap in the wall so the mosaic reads as one assembled object.
-- Do keep the glass glare tilt pointer-driven, inverse to the artwork shift, and disabled for reduced-motion users.
+- Do place checked-in badges on an exact touching honeycomb grid and keep hover/selection from expanding a wall tile.
+- Do keep the glass glare tilt pointer-driven: the whole badge follows the pointer direction, while only the sheen shifts inversely; disable it for reduced-motion users.
 - Do preserve the text state (`待发现`, `已点亮`, and the recorded time) when simplifying the visual treatment.
 - Don’t turn the archive into a generic rounded-card dashboard.
+- Don’t draw a second CSS hex frame around the generated badge artwork.
 - Don’t spend city accent color on locked content or unrelated decoration.
 - Don’t remove keyboard focus styling, reduced-motion support, or the visible empty state.

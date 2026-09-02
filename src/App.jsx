@@ -3,6 +3,7 @@ import {
   Archive,
   ArrowClockwise,
   ArrowUpRight,
+  ArrowsOut,
   Boat,
   Books,
   Bridge,
@@ -25,12 +26,16 @@ import {
   Planet,
   Radio,
   SealCheck,
+  ShareNetwork,
+  DownloadSimple,
+  Copy,
   Sparkle,
   Storefront,
   SunHorizon,
   Tree,
   TreeStructure,
   Waves,
+  X,
 } from "@phosphor-icons/react";
 import "@fontsource-variable/ibm-plex-sans";
 import "@fontsource/ibm-plex-mono";
@@ -70,6 +75,17 @@ const cities = [
     accent: "#d2a258",
     accentSoft: "#6b4b2e",
     accentInk: "#f5d497",
+  },
+  {
+    id: "hangzhou",
+    name: "杭州",
+    english: "HANGZHOU",
+    short: "杭",
+    countLabel: "湖山十章",
+    phrase: "西湖、茶山与运河，慢慢收好一城春色",
+    accent: "#76b8a4",
+    accentSoft: "#35695d",
+    accentInk: "#bdebd8",
   },
 ];
 
@@ -126,7 +142,20 @@ const landmarks = [
   { id: "beijing-ncp", city: "beijing", title: "国家大剧院", english: "NATIONAL GRAND THEATRE", district: "西城 · 水院", description: "一枚漂浮在水面的穹顶，收纳整座城市的声音。", icon: "music" },
   { id: "beijing-lama-temple", city: "beijing", title: "雍和宫", english: "LAMA TEMPLE", district: "东城 · 香火", description: "金色屋檐和檀香，让闹市忽然慢下半拍。", icon: "church" },
   { id: "beijing-jingshan", city: "beijing", title: "景山公园", english: "JINGSHAN PARK", district: "西城 · 城眺", description: "登上山顶回望，故宫的轴线一览无余。", icon: "tree" },
+  { id: "hangzhou-west-lake", city: "hangzhou", title: "西湖", english: "WEST LAKE", district: "西湖 · 湖光", description: "一片湖水收拢山色、柳影与城市的晚风。", icon: "waves" },
+  { id: "hangzhou-lingyin", city: "hangzhou", title: "灵隐寺", english: "LINGYIN TEMPLE", district: "西湖 · 禅意", description: "古木与山门之间，香火把喧闹留在远处。", icon: "church" },
+  { id: "hangzhou-leifeng", city: "hangzhou", title: "雷峰塔", english: "LEIFENG PAGODA", district: "西湖 · 夕照", description: "登塔望湖，夕阳把雷峰的轮廓染成一枚金印。", icon: "castle" },
+  { id: "hangzhou-broken-bridge", city: "hangzhou", title: "断桥残雪", english: "BROKEN BRIDGE", district: "西湖 · 冬景", description: "断桥不是终点，雪意沿着湖面慢慢铺开。", icon: "bridge" },
+  { id: "hangzhou-xixi", city: "hangzhou", title: "西溪湿地", english: "XIXI WETLAND", district: "西溪 · 湿地", description: "一支橹、一片芦苇，水巷把时间划得很慢。", icon: "boat" },
+  { id: "hangzhou-grand-canal", city: "hangzhou", title: "京杭大运河", english: "GRAND CANAL", district: "拱宸桥 · 运河", description: "桥影与灯火一起落进京杭大运河的水面。", icon: "bridge" },
+  { id: "hangzhou-liuhe", city: "hangzhou", title: "六和塔", english: "LIUHE PAGODA", district: "滨江 · 钱塘", description: "六和塔守着江潮，远山与帆影在天边并行。", icon: "building" },
+  { id: "hangzhou-hefang", city: "hangzhou", title: "河坊街", english: "HEFANG STREET", district: "上城 · 老城", description: "沿着青石街走，灯笼、木窗和湖光在这里相遇。", icon: "building" },
+  { id: "hangzhou-longjing", city: "hangzhou", title: "龙井村", english: "LONGJING VILLAGE", district: "西湖 · 茶山", description: "茶坡沿着山势起伏，晨雾里只听见一城茶香。", icon: "tree" },
+  { id: "hangzhou-liangzhu", city: "hangzhou", title: "良渚古城遗址公园", english: "LIANGZHU ANCIENT CITY", district: "余杭 · 玉琮", description: "水网与土台留下五千年前的良渚回声。", icon: "mountains" },
 ];
+
+const totalLandmarks = landmarks.length;
+const PUBLIC_SHARE_URL = "https://holynova.github.io/city-stamp/";
 
 function getStoredProgress() {
   if (typeof window === "undefined") return {};
@@ -154,13 +183,219 @@ function formatDate(value) {
   }).format(new Date(value)).replace(/\//g, ".");
 }
 
+function getWallRows(items) {
+  const rowCapacities = [];
+  let capacity = 0;
+  while (capacity < items.length) {
+    const rowCapacity = rowCapacities.length % 2 === 0 ? 5 : 4;
+    rowCapacities.push(rowCapacity);
+    capacity += rowCapacity;
+  }
+
+  const rowCounts = rowCapacities.map(() => 0);
+  let remaining = items.length;
+  rowCapacities.forEach((rowCapacity, rowIndex) => {
+    const rowsLeft = rowCapacities.length - rowIndex;
+    const targetCount = Math.ceil(remaining / rowsLeft);
+    rowCounts[rowIndex] = Math.min(rowCapacity, targetCount);
+    remaining -= rowCounts[rowIndex];
+  });
+
+  const rows = [];
+  let cursor = 0;
+  rowCounts.forEach((rowCount) => {
+    rows.push(items.slice(cursor, cursor + rowCount));
+    cursor += rowCount;
+  });
+  return rows;
+}
+
+function drawHexPath(context, x, y, width, height) {
+  context.beginPath();
+  context.moveTo(x + width / 2, y);
+  context.lineTo(x + width, y + height * 0.25);
+  context.lineTo(x + width, y + height * 0.75);
+  context.lineTo(x + width / 2, y + height);
+  context.lineTo(x, y + height * 0.75);
+  context.lineTo(x, y + height * 0.25);
+  context.closePath();
+}
+
+function loadShareArtwork(landmark) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = new URL(`./badges/${landmark.id}.png`, document.baseURI).href;
+  });
+}
+
+async function createShareCardDataUrl({ checkedLandmarks, progress }) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Canvas is not available");
+
+  const width = 1200;
+  const margin = 72;
+  const tileWidth = 126;
+  const tileHeight = tileWidth / 0.8660254;
+  const rowStep = tileHeight * 0.75;
+  const wallRows = getWallRows(checkedLandmarks);
+  const wallTop = 528;
+  const wallHeight = wallRows.length ? tileHeight + (wallRows.length - 1) * rowStep : 168;
+  const footerTop = wallTop + wallHeight + 80;
+  const height = Math.max(1500, footerTop + 128);
+  canvas.width = width;
+  canvas.height = height;
+
+  const background = context.createRadialGradient(width * 0.5, 160, 20, width * 0.5, 470, 720);
+  background.addColorStop(0, "#182322");
+  background.addColorStop(0.48, "#0d1314");
+  background.addColorStop(1, "#080a0b");
+  context.fillStyle = background;
+  context.fillRect(0, 0, width, height);
+
+  context.strokeStyle = "rgba(202, 169, 124, 0.74)";
+  context.lineWidth = 2;
+  context.strokeRect(28, 28, width - 56, height - 56);
+  context.strokeStyle = "rgba(202, 169, 124, 0.18)";
+  context.lineWidth = 1;
+  context.strokeRect(42, 42, width - 84, height - 84);
+
+  context.fillStyle = "#a99d8e";
+  context.font = '500 16px "IBM Plex Mono", monospace';
+  context.fillText("CITY STAMP · FIELD ARCHIVE", margin, 86);
+  context.textAlign = "right";
+  context.fillStyle = "#c9a87a";
+  context.fillText("SHARE CARD / MY CITY ARCHIVE", width - margin, 86);
+  context.textAlign = "left";
+  context.strokeStyle = "rgba(202, 169, 124, 0.22)";
+  context.beginPath();
+  context.moveTo(margin, 115);
+  context.lineTo(width - margin, 115);
+  context.stroke();
+
+  context.fillStyle = "#f3eadb";
+  context.font = '650 58px "IBM Plex Sans", "PingFang SC", sans-serif';
+  context.fillText("我的城市印记", margin, 195);
+  context.fillStyle = "#c9a87a";
+  context.font = '500 19px "IBM Plex Mono", monospace';
+  context.fillText("MY CHECK-IN ARCHIVE", margin, 232);
+
+  context.fillStyle = "#f2d2a0";
+  context.font = '600 92px "IBM Plex Mono", monospace';
+  context.fillText(String(checkedLandmarks.length).padStart(2, "0"), margin, 344);
+  context.fillStyle = "#a99d8e";
+  context.font = '400 21px "IBM Plex Mono", monospace';
+  context.fillText(`/ ${totalLandmarks} PLACES`, margin + 182, 340);
+  context.fillStyle = "#766d62";
+  context.font = '400 17px "IBM Plex Sans", "PingFang SC", sans-serif';
+  context.fillText(checkedLandmarks.length ? "我走过的地方，正在变成一面墙。" : "点亮第一枚徽章，开始收集自己的城市顺序。", margin + 182, 371);
+
+  const cityWidth = (width - margin * 2) / cities.length;
+  cities.forEach((city, index) => {
+    const cityLandmarks = landmarks.filter((landmark) => landmark.city === city.id);
+    const cityCount = cityLandmarks.filter((landmark) => progress[landmark.id]).length;
+    const x = margin + cityWidth * index;
+    const barWidth = cityWidth - 24;
+    context.fillStyle = city.accent;
+    context.fillRect(x, 410, 42, 3);
+    context.fillStyle = "#f3eadb";
+    context.font = '600 20px "IBM Plex Sans", "PingFang SC", sans-serif';
+    context.fillText(city.name, x, 448);
+    context.fillStyle = "#766d62";
+    context.font = '400 12px "IBM Plex Mono", monospace';
+    context.fillText(city.english, x, 469);
+    context.textAlign = "right";
+    context.fillStyle = city.accentInk;
+    context.font = '400 16px "IBM Plex Mono", monospace';
+    context.fillText(`${cityCount} / ${cityLandmarks.length}`, x + cityWidth - 12, 448);
+    context.textAlign = "left";
+    context.fillStyle = "rgba(202, 169, 124, 0.16)";
+    context.fillRect(x, 483, barWidth, 4);
+    context.fillStyle = city.accent;
+    context.fillRect(x, 483, barWidth * (cityCount / cityLandmarks.length), 4);
+  });
+
+  context.fillStyle = "#a99d8e";
+  context.font = '500 15px "IBM Plex Mono", monospace';
+  context.fillText("CHECK-IN WALL", margin, 516);
+  context.textAlign = "right";
+  context.fillStyle = "#c9a87a";
+  context.fillText(`${checkedLandmarks.length} STAMPS ARCHIVED`, width - margin, 516);
+  context.textAlign = "left";
+
+  if (checkedLandmarks.length === 0) {
+    const emptyWidth = 188;
+    const emptyHeight = emptyWidth / 0.8660254;
+    const emptyX = (width - emptyWidth) / 2;
+    const emptyY = wallTop + 8;
+    context.strokeStyle = "rgba(202, 169, 124, 0.38)";
+    context.lineWidth = 2;
+    drawHexPath(context, emptyX, emptyY, emptyWidth, emptyHeight);
+    context.stroke();
+    context.fillStyle = "#766d62";
+    context.font = '400 16px "IBM Plex Sans", "PingFang SC", sans-serif';
+    context.textAlign = "center";
+    context.fillText("待你点亮第一枚徽章", width / 2, emptyY + emptyHeight + 42);
+    context.textAlign = "left";
+  } else {
+    const artwork = await Promise.all(checkedLandmarks.map(loadShareArtwork));
+    wallRows.forEach((row, rowIndex) => {
+      const rowWidth = row.length * tileWidth + (rowIndex % 2 === 1 ? tileWidth / 2 : 0);
+      const startX = (width - rowWidth) / 2;
+      const y = wallTop + rowIndex * rowStep;
+      row.forEach((landmark, itemIndex) => {
+        const x = startX + itemIndex * tileWidth;
+        const city = cities.find((item) => item.id === landmark.city) || cities[0];
+        const image = artwork[checkedLandmarks.indexOf(landmark)];
+        context.save();
+        context.shadowColor = city.accent;
+        context.shadowBlur = 14;
+        context.fillStyle = city.accentSoft;
+        drawHexPath(context, x, y, tileWidth, tileHeight);
+        context.fill();
+        context.restore();
+        context.save();
+        drawHexPath(context, x, y, tileWidth, tileHeight);
+        context.clip();
+        if (image) {
+          context.drawImage(image, x, y, tileWidth, tileHeight);
+        } else {
+          context.fillStyle = "#252b2b";
+          context.fillRect(x, y, tileWidth, tileHeight);
+        }
+        context.restore();
+      });
+    });
+  }
+
+  context.strokeStyle = "rgba(202, 169, 124, 0.22)";
+  context.beginPath();
+  context.moveTo(margin, footerTop);
+  context.lineTo(width - margin, footerTop);
+  context.stroke();
+  context.fillStyle = "#766d62";
+  context.font = '400 14px "IBM Plex Sans", "PingFang SC", sans-serif';
+  context.fillText("把走过的城市，收进一张可以分享的档案。", margin, footerTop + 48);
+  context.fillStyle = "#c9a87a";
+  context.font = '400 14px "IBM Plex Mono", monospace';
+  context.textAlign = "right";
+  context.fillText("holynova.github.io/city-stamp", width - margin, footerTop + 48);
+  context.textAlign = "left";
+  context.fillStyle = "#5f5a52";
+  context.font = '400 12px "IBM Plex Mono", monospace';
+  context.fillText(`CITY STAMP · ${new Date().toLocaleDateString("zh-CN")}`, margin, footerTop + 82);
+
+  return canvas.toDataURL("image/png");
+}
+
 function LandmarkIcon({ name, size = 32, weight = "regular" }) {
   const Icon = iconMap[name] || MapPinLine;
   return <Icon aria-hidden="true" size={size} weight={weight} />;
 }
 
-function HexBadge({ landmark, city, unlocked, featured = false, celebrating = false }) {
-  const serial = String(landmarks.indexOf(landmark) + 1).padStart(2, "0");
+function HexBadge({ landmark, city, unlocked, featured = false, detail = false, celebrating = false }) {
   const badgeRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5, active: false });
   const frameRef = useRef(0);
@@ -172,16 +407,14 @@ function HexBadge({ landmark, city, unlocked, featured = false, celebrating = fa
       const badge = badgeRef.current;
       if (!badge) return;
       const { x, y, active } = pointerRef.current;
-      const inverseX = 0.5 - x;
-      const inverseY = 0.5 - y;
-      badge.style.setProperty("--tilt-x", `${active ? inverseY * 13 : 0}deg`);
-      badge.style.setProperty("--tilt-y", `${active ? -inverseX * 15 : 0}deg`);
-      badge.style.setProperty("--art-shift-x", `${active ? inverseX * 8 : 0}px`);
-      badge.style.setProperty("--art-shift-y", `${active ? inverseY * 6 : 0}px`);
-      badge.style.setProperty("--sheen-shift-x", `${active ? inverseX * 24 : 0}px`);
-      badge.style.setProperty("--sheen-shift-y", `${active ? inverseY * 18 : 0}px`);
-      badge.style.setProperty("--glare-x", `${50 + (active ? inverseX * 72 : 0)}%`);
-      badge.style.setProperty("--glare-y", `${50 + (active ? inverseY * 56 : 0)}%`);
+      const offsetX = x - 0.5;
+      const offsetY = y - 0.5;
+      badge.style.setProperty("--tilt-x", `${active ? offsetY * 8 : 0}deg`);
+      badge.style.setProperty("--tilt-y", `${active ? -offsetX * 10 : 0}deg`);
+      badge.style.setProperty("--sheen-shift-x", `${active ? -offsetX * 20 : 0}px`);
+      badge.style.setProperty("--sheen-shift-y", `${active ? -offsetY * 15 : 0}px`);
+      badge.style.setProperty("--glare-x", `${50 + (active ? offsetX * 38 : 0)}%`);
+      badge.style.setProperty("--glare-y", `${50 + (active ? offsetY * 32 : 0)}%`);
       badge.style.setProperty("--sheen-opacity", active ? "1" : "0");
     });
   }
@@ -209,12 +442,10 @@ function HexBadge({ landmark, city, unlocked, featured = false, celebrating = fa
   return (
     <div
       ref={badgeRef}
-      className={`hex-badge ${featured ? "hex-badge--featured" : ""} ${unlocked ? "is-unlocked" : ""} ${celebrating ? "is-celebrating" : ""}`}
+      className={`hex-badge ${featured ? "hex-badge--featured" : ""} ${detail ? "hex-badge--detail" : ""} ${unlocked ? "is-unlocked" : ""} ${celebrating ? "is-celebrating" : ""}`}
       style={{ "--badge-accent": city.accent, "--badge-accent-soft": city.accentSoft, "--badge-accent-ink": city.accentInk }}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      onMouseMove={handlePointerMove}
-      onMouseLeave={handlePointerLeave}
     >
       <div className="hex-badge__core">
         <div className="hex-badge__glass" aria-hidden="true" />
@@ -222,9 +453,6 @@ function HexBadge({ landmark, city, unlocked, featured = false, celebrating = fa
           <img className="hex-badge__art" src={`./badges/${landmark.id}.png`} alt="" aria-hidden="true" draggable="false" />
         </div>
         <div className="hex-badge__sheen" aria-hidden="true" />
-        <div className="hex-badge__topline"><span>{city.short}</span><span>{unlocked ? "OPEN" : "LOCKED"}</span></div>
-        {!unlocked && <span className="hex-badge__lock"><LockKey aria-hidden="true" size={featured ? 20 : 15} weight="bold" /></span>}
-        <div className="hex-badge__serial">CITY STAMP · {serial}</div>
       </div>
     </div>
   );
@@ -239,11 +467,21 @@ function App() {
   const [notice, setNotice] = useState(null);
   const [wallSelectedId, setWallSelectedId] = useState(null);
   const [wallZoom, setWallZoom] = useState(1);
+  const [detailLandmarkId, setDetailLandmarkId] = useState(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareCardState, setShareCardState] = useState({ status: "idle", dataUrl: "" });
+  const [shareFeedback, setShareFeedback] = useState("");
+  const detailDialogRef = useRef(null);
+  const detailCloseRef = useRef(null);
+  const shareDialogRef = useRef(null);
+  const shareCloseRef = useRef(null);
 
   const activeCity = cities.find((city) => city.id === activeCityId) || cities[0];
   const selectedLandmark = landmarks.find((landmark) => landmark.id === selectedId) || landmarks[0];
   const selectedCity = cities.find((city) => city.id === selectedLandmark.city) || cities[0];
   const selectedRecord = progress[selectedLandmark.id];
+  const detailLandmark = landmarks.find((landmark) => landmark.id === detailLandmarkId) || null;
+  const detailCity = detailLandmark ? cities.find((city) => city.id === detailLandmark.city) || cities[0] : null;
   const totalUnlocked = landmarks.filter((landmark) => progress[landmark.id]).length;
   const cityUnlocked = landmarks.filter((landmark) => landmark.city === activeCity.id && progress[landmark.id]).length;
 
@@ -258,11 +496,7 @@ function App() {
     .sort((a, b) => new Date(progress[b.id].checkedAt) - new Date(progress[a.id].checkedAt)).slice(0, 4), [progress]);
   const checkedLandmarks = useMemo(() => landmarks.filter((landmark) => progress[landmark.id])
     .sort((a, b) => new Date(progress[b.id].checkedAt) - new Date(progress[a.id].checkedAt)), [progress]);
-  const wallRows = useMemo(() => {
-    const rows = [];
-    for (let index = 0; index < checkedLandmarks.length; index += 5) rows.push(checkedLandmarks.slice(index, index + 5));
-    return rows;
-  }, [checkedLandmarks]);
+  const wallRows = useMemo(() => getWallRows(checkedLandmarks), [checkedLandmarks]);
   const wallSelectedLandmark = checkedLandmarks.find((landmark) => landmark.id === wallSelectedId) || checkedLandmarks[0];
 
   useEffect(() => {
@@ -279,6 +513,95 @@ function App() {
     setWallSelectedId((current) => (current && checkedLandmarks.some((landmark) => landmark.id === current) ? current : checkedLandmarks[0]?.id || null));
   }, [checkedLandmarks]);
 
+  useEffect(() => {
+    if (!detailLandmarkId) return undefined;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusFrame = window.requestAnimationFrame(() => detailCloseRef.current?.focus());
+
+    function handleDetailKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeBadgeDetail();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = detailDialogRef.current?.querySelectorAll("button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])");
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleDetailKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleDetailKeyDown);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, [detailLandmarkId]);
+
+  useEffect(() => {
+    if (!shareDialogOpen) return undefined;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusFrame = window.requestAnimationFrame(() => shareCloseRef.current?.focus());
+
+    function handleShareKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeShareCard();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = shareDialogRef.current?.querySelectorAll("button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])");
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleShareKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleShareKeyDown);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, [shareDialogOpen]);
+
+  useEffect(() => {
+    if (!shareDialogOpen) return undefined;
+    let cancelled = false;
+    setShareCardState({ status: "loading", dataUrl: "" });
+    setShareFeedback("");
+    createShareCardDataUrl({ checkedLandmarks, progress })
+      .then((dataUrl) => {
+        if (!cancelled) setShareCardState({ status: "ready", dataUrl });
+      })
+      .catch(() => {
+        if (!cancelled) setShareCardState({ status: "error", dataUrl: "" });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [shareDialogOpen, checkedLandmarks, progress]);
+
   function selectCity(cityId) {
     const city = cities.find((item) => item.id === cityId);
     setActiveCityId(cityId);
@@ -292,7 +615,14 @@ function App() {
     const city = cities.find((item) => item.id === landmark.city) || cities[0];
     setSelectedId(landmark.id);
     if (progress[landmark.id]) {
-      setNotice({ type: "info", title: `${landmark.title} 已在你的档案里`, detail: `记录于 ${formatDate(progress[landmark.id].checkedAt)}` });
+      setProgress((current) => {
+        const next = { ...current };
+        delete next[landmark.id];
+        return next;
+      });
+      setCelebratingId(null);
+      trackEvent("landmark-uncheckin", { city: city.id, landmark: landmark.id });
+      setNotice({ type: "info", title: `${city.name} · ${landmark.title} 已取消打卡`, detail: "已从城市档案和打卡墙移除，可随时再次点亮" });
       return;
     }
     const checkedAt = new Date().toISOString();
@@ -317,6 +647,98 @@ function App() {
     trackEvent("wall-badge-select", { city: landmark.city, landmark: landmark.id });
   }
 
+  function openBadgeDetail(landmark) {
+    setDetailLandmarkId(landmark.id);
+    trackEvent("badge-detail-open", { city: landmark.city, landmark: landmark.id });
+  }
+
+  function closeBadgeDetail() {
+    setDetailLandmarkId(null);
+  }
+
+  function openShareCard() {
+    setShareDialogOpen(true);
+    setShareCardState({ status: "loading", dataUrl: "" });
+    setShareFeedback("");
+    trackEvent("share-card-open", { total: totalUnlocked, totalAvailable: totalLandmarks });
+  }
+
+  function closeShareCard() {
+    setShareDialogOpen(false);
+  }
+
+  function retryShareCard() {
+    setShareCardState({ status: "loading", dataUrl: "" });
+    setShareFeedback("");
+    createShareCardDataUrl({ checkedLandmarks, progress })
+      .then((dataUrl) => setShareCardState({ status: "ready", dataUrl }))
+      .catch(() => setShareCardState({ status: "error", dataUrl: "" }));
+  }
+
+  function getShareUrl() {
+    return PUBLIC_SHARE_URL;
+  }
+
+  async function copyShareUrl() {
+    const shareUrl = getShareUrl();
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const input = document.createElement("input");
+        input.value = shareUrl;
+        input.setAttribute("readonly", "true");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      }
+      setShareFeedback("链接已复制，可以粘贴给朋友继续查看。");
+      trackEvent("share-link-copy", { total: totalUnlocked });
+    } catch {
+      setShareFeedback(`复制失败，请手动复制：${shareUrl}`);
+    }
+  }
+
+  function downloadShareCard() {
+    if (shareCardState.status !== "ready" || !shareCardState.dataUrl) return;
+    const link = document.createElement("a");
+    link.href = shareCardState.dataUrl;
+    link.download = `city-stamp-${totalUnlocked}-of-${totalLandmarks}.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setShareFeedback("分享卡片已下载，进度已经写进图片。");
+    trackEvent("share-card-download", { total: totalUnlocked });
+  }
+
+  async function shareProgress() {
+    if (!navigator.share) {
+      await copyShareUrl();
+      return;
+    }
+    try {
+      const shareData = {
+        title: "我的城市印记",
+        text: `我已经点亮 ${totalUnlocked} / ${totalLandmarks} 枚城市徽章。`,
+        url: getShareUrl(),
+      };
+      if (shareCardState.status === "ready" && shareCardState.dataUrl) {
+        const response = await fetch(shareCardState.dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "city-stamp-progress.png", { type: "image/png" });
+        if (navigator.canShare?.({ files: [file] })) shareData.files = [file];
+      }
+      await navigator.share(shareData);
+      setShareFeedback("已打开系统分享面板。");
+      trackEvent("share-progress", { total: totalUnlocked, sharedImage: Boolean(shareData.files?.length) });
+    } catch (error) {
+      if (error?.name !== "AbortError") setShareFeedback("分享没有完成，可以先下载图片或复制链接。");
+    }
+  }
+
   function changeWallZoom(delta) {
     setWallZoom((current) => Math.min(1.6, Math.max(0.75, Number((current + delta).toFixed(2)))));
   }
@@ -326,6 +748,7 @@ function App() {
     { id: "unlocked", label: "已点亮", count: cityUnlocked },
     { id: "locked", label: "待发现", count: 10 - cityUnlocked },
   ];
+  const nativeShareAvailable = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   return (
     <div className="app-shell">
@@ -340,9 +763,9 @@ function App() {
             <a className="site-nav__link" href="#wall">打卡墙</a>
             <a className="site-nav__link" href="#journal">足迹</a>
           </nav>
-          <div className="header-progress" aria-label={`已点亮 ${totalUnlocked} 枚徽章，共 30 枚`}>
+          <div className="header-progress" aria-label={`已点亮 ${totalUnlocked} 枚徽章，共 ${totalLandmarks} 枚`}>
             <span className="header-progress__label">ARCHIVE</span>
-            <span className="header-progress__value"><b>{String(totalUnlocked).padStart(2, "0")}</b> / 30</span>
+            <span className="header-progress__value"><b>{String(totalUnlocked).padStart(2, "0")}</b> / {totalLandmarks}</span>
             <Medal aria-hidden="true" size={24} weight="duotone" />
           </div>
         </header>
@@ -352,28 +775,29 @@ function App() {
             <div className="hero-copy">
               <div className="hero-copy__rule" aria-hidden="true"><span /><Hexagon size={17} weight="regular" /><span /></div>
               <h1 id="hero-title">把城市，<span>收进一枚徽章。</span></h1>
-              <p className="hero-copy__lede">走过一处地标，就为自己的城市档案点亮一枚印记。三座城，三十个值得被记住的瞬间。</p>
+              <p className="hero-copy__lede">走过一处地标，就为自己的城市档案点亮一枚印记。四座城，四十个值得被记住的瞬间。</p>
               <div className="hero-copy__meta">
-                <span><ListChecks aria-hidden="true" size={17} weight="bold" /> 30 PLACES TO DISCOVER</span>
+                <span><ListChecks aria-hidden="true" size={17} weight="bold" /> {totalLandmarks} PLACES TO DISCOVER</span>
                 <span><Clock aria-hidden="true" size={17} weight="bold" /> 本地时间记录</span>
               </div>
               <a className="text-link" href="#collection" onClick={() => trackEvent("start-collecting")}>开始收集 <ArrowUpRight aria-hidden="true" size={17} weight="bold" /></a>
             </div>
 
             <div className="spotlight-panel" style={{ "--spotlight-accent": selectedCity.accent }}>
-              <div className="spotlight-panel__topline"><span>FEATURED IMPRESSION</span><span>NO. {String(landmarks.indexOf(selectedLandmark) + 1).padStart(2, "0")} / 30</span></div>
+              <div className="spotlight-panel__topline"><span>FEATURED IMPRESSION</span><span>NO. {String(landmarks.indexOf(selectedLandmark) + 1).padStart(2, "0")} / {totalLandmarks}</span></div>
               <div className="spotlight-panel__art">
                 <div className="spotlight-panel__orbit spotlight-panel__orbit--one" aria-hidden="true" />
                 <div className="spotlight-panel__orbit spotlight-panel__orbit--two" aria-hidden="true" />
-                <button className="spotlight-panel__badge-button" type="button" onClick={() => handleLandmarkClick(selectedLandmark)} aria-label={selectedRecord ? `查看已点亮的${selectedLandmark.title}徽章` : `点亮${selectedLandmark.title}徽章`}>
+                <button className="spotlight-panel__badge-button" type="button" onClick={() => handleLandmarkClick(selectedLandmark)} aria-label={selectedRecord ? `取消${selectedLandmark.title}打卡` : `点亮${selectedLandmark.title}徽章`}>
                   <HexBadge landmark={selectedLandmark} city={selectedCity} unlocked={Boolean(selectedRecord)} featured celebrating={celebratingId === selectedLandmark.id} />
                 </button>
+                <button className="spotlight-panel__detail-button" type="button" onClick={() => openBadgeDetail(selectedLandmark)} aria-label={`查看${selectedLandmark.title}的3D大图`}><ArrowsOut aria-hidden="true" size={14} weight="bold" /> 查看 3D 大图</button>
                 <span className="spotlight-panel__caption">{selectedRecord ? "YOUR RECORDED MOMENT" : "TAP TO RECORD YOUR MOMENT"}</span>
               </div>
               <div className="spotlight-panel__bottomline">
                 <div><span>{selectedCity.name} · {selectedCity.english}</span><strong>{selectedLandmark.title}</strong></div>
                 <div className="spotlight-panel__status">
-                  {selectedRecord ? <><SealCheck aria-hidden="true" size={22} weight="duotone" /><span>已点亮<br /><small>{formatDate(selectedRecord.checkedAt)}</small></span></> : <><LockKey aria-hidden="true" size={21} weight="duotone" /><span>尚未打卡<br /><small>点击徽章点亮</small></span></>}
+                  {selectedRecord ? <><SealCheck aria-hidden="true" size={22} weight="duotone" /><span>已点亮<br /><small>{formatDate(selectedRecord.checkedAt)} · 再点取消</small></span></> : <><LockKey aria-hidden="true" size={21} weight="duotone" /><span>尚未打卡<br /><small>点击徽章点亮</small></span></>}
                 </div>
               </div>
             </div>
@@ -381,7 +805,7 @@ function App() {
 
           <section className="collection-section" id="collection" aria-labelledby="collection-title">
             <div className="section-heading">
-              <div><div className="section-heading__index">01 · COLLECTION INDEX</div><h2 id="collection-title">三座城，三十枚印记。</h2></div>
+              <div><div className="section-heading__index">01 · COLLECTION INDEX</div><h2 id="collection-title">四座城，四十枚印记。</h2></div>
               <p>选择一座城，沿着徽章的轮廓，记录你真正走到过的地方。</p>
             </div>
             <div className="city-switcher" role="tablist" aria-label="选择城市">
@@ -400,10 +824,10 @@ function App() {
               {visibleLandmarks.map((landmark) => {
                 const isUnlocked = Boolean(progress[landmark.id]);
                 return <article className={`badge-record ${selectedId === landmark.id ? "is-selected" : ""}`} key={landmark.id}>
-                  <button className="badge-record__button" type="button" onClick={() => handleLandmarkClick(landmark)} aria-label={isUnlocked ? `查看已点亮的${landmark.title}徽章` : `点亮${landmark.title}徽章`}>
+                  <button className="badge-record__button" type="button" onClick={() => handleLandmarkClick(landmark)} aria-label={isUnlocked ? `取消${landmark.title}打卡` : `点亮${landmark.title}徽章`}>
                     <HexBadge landmark={landmark} city={activeCity} unlocked={isUnlocked} celebrating={celebratingId === landmark.id} />
                   </button>
-                  <div className="badge-record__copy"><div className="badge-record__serial"><span>{String(landmarks.indexOf(landmark) + 1).padStart(2, "0")}</span><span>{isUnlocked ? "ARCHIVED" : "UNDISCOVERED"}</span></div><h3>{landmark.title}</h3><p>{landmark.district}</p><span className={`badge-record__date ${isUnlocked ? "is-unlocked" : ""}`}>{isUnlocked ? `已于 ${formatDate(progress[landmark.id].checkedAt)} 记录` : "点击徽章 · 记录到访"}</span></div>
+                  <div className="badge-record__copy"><div className="badge-record__serial"><span>{String(landmarks.indexOf(landmark) + 1).padStart(2, "0")}</span><span>{isUnlocked ? "ARCHIVED" : "UNDISCOVERED"}</span></div><h3>{landmark.title}</h3><p>{landmark.district}</p><span className={`badge-record__date ${isUnlocked ? "is-unlocked" : ""}`}>{isUnlocked ? `已于 ${formatDate(progress[landmark.id].checkedAt)} 记录 · 再点取消` : "点击徽章 · 记录到访"}</span><button className="badge-record__detail" type="button" onClick={() => openBadgeDetail(landmark)} aria-label={`查看${landmark.title}的3D大图`}><ArrowsOut aria-hidden="true" size={13} weight="bold" /> 查看 3D 大图</button></div>
                 </article>;
               })}
             </div>
@@ -413,17 +837,17 @@ function App() {
           <section className="wall-section" id="wall" aria-labelledby="wall-title">
             <div className="section-heading section-heading--wall">
               <div><div className="section-heading__index">02 · CHECK-IN WALL</div><h2 id="wall-title">把走过的地方，拼成一面墙。</h2></div>
-              <p>所有已点亮的徽章会靠在一起。点击一枚，放大查看它留下的城市细节。</p>
+              <p>所有已点亮的徽章会以正六边形边缘相接。点击一枚，放大查看它留下的城市细节。</p>
             </div>
             {checkedLandmarks.length > 0 ? <div className="wall-layout">
               <div className="wall-stage" aria-label="已打卡徽章墙">
-                <div className="wall-stage__topline"><span>{String(checkedLandmarks.length).padStart(2, "0")} STAMPS ARCHIVED</span><span>HEXAGONAL MOSAIC</span></div>
+                <div className="wall-stage__topline"><span>{String(checkedLandmarks.length).padStart(2, "0")} STAMPS ARCHIVED</span><div className="wall-stage__topline-actions"><span>HEXAGONAL MOSAIC</span><button className="wall-stage__share-button" type="button" onClick={openShareCard}><ShareNetwork aria-hidden="true" size={13} weight="bold" /> 分享进度</button></div></div>
                 <div className="wall-stage__viewport">
                   <div className="wall-stage__mosaic" style={{ "--wall-scale": wallZoom }}>
                     {wallRows.map((row, rowIndex) => <div className={`wall-stage__row ${rowIndex % 2 === 1 ? "is-offset" : ""}`} key={row.map((landmark) => landmark.id).join("-")}>
                       {row.map((landmark) => {
                         const city = cities.find((item) => item.id === landmark.city) || cities[0];
-                        return <button className={`wall-stage__tile ${wallSelectedLandmark?.id === landmark.id ? "is-selected" : ""}`} key={landmark.id} type="button" onClick={() => selectWallLandmark(landmark)} aria-label={`查看${landmark.title}徽章详情`}>
+                        return <button className={`wall-stage__tile ${wallSelectedLandmark?.id === landmark.id ? "is-selected" : ""}`} key={landmark.id} type="button" onClick={() => { selectWallLandmark(landmark); openBadgeDetail(landmark); }} aria-label={`全屏查看${landmark.title}徽章详情`}>
                           <HexBadge landmark={landmark} city={city} unlocked />
                         </button>;
                       })}
@@ -432,7 +856,7 @@ function App() {
                 </div>
               </div>
               <aside className="wall-inspector" aria-live="polite" aria-label="徽章详情">
-                <div className="wall-inspector__topline"><span>DETAIL VIEW</span><span>{wallSelectedLandmark ? String(landmarks.indexOf(wallSelectedLandmark) + 1).padStart(2, "0") : "--"} / 30</span></div>
+                <div className="wall-inspector__topline"><span>DETAIL VIEW</span><span>{wallSelectedLandmark ? String(landmarks.indexOf(wallSelectedLandmark) + 1).padStart(2, "0") : "--"} / {totalLandmarks}</span></div>
                 <div className="wall-inspector__preview">
                   {wallSelectedLandmark && (() => {
                     const city = cities.find((item) => item.id === wallSelectedLandmark.city) || cities[0];
@@ -441,7 +865,7 @@ function App() {
                 </div>
                 {wallSelectedLandmark && (() => {
                   const city = cities.find((item) => item.id === wallSelectedLandmark.city) || cities[0];
-                  return <><div className="wall-inspector__copy"><span>{city.name} · {city.english}</span><strong>{wallSelectedLandmark.title}</strong><small>{wallSelectedLandmark.description}</small><time dateTime={progress[wallSelectedLandmark.id].checkedAt}>已记录 · {formatDate(progress[wallSelectedLandmark.id].checkedAt)}</time></div><div className="wall-inspector__controls"><span>墙面缩放 · {Math.round(wallZoom * 100)}%</span><div><button type="button" onClick={() => changeWallZoom(-0.15)} disabled={wallZoom <= 0.75} aria-label="缩小徽章墙">−</button><button type="button" onClick={() => setWallZoom(1)} aria-label="重置徽章墙缩放">100%</button><button type="button" onClick={() => changeWallZoom(0.15)} disabled={wallZoom >= 1.6} aria-label="放大徽章墙">＋</button></div></div></>;
+                  return <><div className="wall-inspector__copy"><span>{city.name} · {city.english}</span><strong>{wallSelectedLandmark.title}</strong><small>{wallSelectedLandmark.description}</small><time dateTime={progress[wallSelectedLandmark.id].checkedAt}>已记录 · {formatDate(progress[wallSelectedLandmark.id].checkedAt)}</time><button className="wall-inspector__detail-button" type="button" onClick={() => openBadgeDetail(wallSelectedLandmark)}><ArrowsOut aria-hidden="true" size={14} weight="bold" /> 全屏查看 3D 徽章</button></div><div className="wall-inspector__controls"><span>墙面缩放 · {Math.round(wallZoom * 100)}%</span><div><button type="button" onClick={() => changeWallZoom(-0.15)} disabled={wallZoom <= 0.75} aria-label="缩小徽章墙">−</button><button type="button" onClick={() => setWallZoom(1)} aria-label="重置徽章墙缩放">100%</button><button type="button" onClick={() => changeWallZoom(0.15)} disabled={wallZoom >= 1.6} aria-label="放大徽章墙">＋</button></div></div></>;
                 })()}
               </aside>
             </div> : <div className="wall-empty"><Hexagon aria-hidden="true" size={42} weight="duotone" /><strong>打卡墙还是一张空白底纸。</strong><span>点亮第一枚徽章，它会成为这面墙的起点。</span><a className="text-link" href="#collection">去发现第一处地标 <ArrowUpRight aria-hidden="true" size={17} weight="bold" /></a></div>}
@@ -457,10 +881,10 @@ function App() {
             </div>
             <aside className="archive-card" aria-labelledby="archive-card-title">
               <div className="archive-card__topline"><span>ARCHIVE STATUS</span><Medal aria-hidden="true" size={21} weight="duotone" /></div>
-              <div className="archive-card__number"><strong>{String(totalUnlocked).padStart(2, "0")}</strong><span>/ 30</span></div>
+              <div className="archive-card__number"><strong>{String(totalUnlocked).padStart(2, "0")}</strong><span>/ {totalLandmarks}</span></div>
               <h3 id="archive-card-title">你的城市档案</h3><p>{totalUnlocked === 0 ? "从第一枚徽章开始，留下属于你的城市顺序。" : `已经把 ${totalUnlocked} 个瞬间收入档案，继续向前走。`}</p>
               <div className="archive-card__cities">{cities.map((city) => { const count = landmarks.filter((landmark) => landmark.city === city.id && progress[landmark.id]).length; return <div className="archive-card__city" key={city.id}><span><i style={{ backgroundColor: city.accent }} />{city.name}</span><strong>{count}/10</strong></div>; })}</div>
-              <button className="reset-button" type="button" onClick={resetProgress} disabled={totalUnlocked === 0}><ArrowClockwise aria-hidden="true" size={16} weight="bold" /> 重置档案</button>
+              <div className="archive-card__actions"><button className="archive-card__share-button" type="button" onClick={openShareCard}><ShareNetwork aria-hidden="true" size={16} weight="bold" /><span>分享我的徽章墙</span><ArrowUpRight aria-hidden="true" size={15} weight="bold" /></button><button className="reset-button" type="button" onClick={resetProgress} disabled={totalUnlocked === 0}><ArrowClockwise aria-hidden="true" size={16} weight="bold" /> 重置档案</button></div>
             </aside>
           </section>
         </main>
@@ -475,6 +899,58 @@ function App() {
         </footer>
       </div>
       {notice && <div className={`toast toast--${notice.type}`} role="status" aria-live="polite"><span className="toast__icon">{notice.type === "success" ? <Sparkle aria-hidden="true" size={20} weight="fill" /> : <Check aria-hidden="true" size={19} weight="bold" />}</span><span className="toast__copy"><strong>{notice.title}</strong><small>{notice.detail}</small></span></div>}
+      {detailLandmark && detailCity && (() => {
+        const detailRecord = progress[detailLandmark.id];
+        return <div className="badge-detail" role="dialog" aria-modal="true" aria-labelledby="badge-detail-title" aria-describedby="badge-detail-description" onMouseDown={(event) => { if (event.target === event.currentTarget) closeBadgeDetail(); }}>
+          <div className="badge-detail__panel" ref={detailDialogRef}>
+            <header className="badge-detail__header">
+              <div><span>3D BADGE DETAIL</span><span>NO. {String(landmarks.indexOf(detailLandmark) + 1).padStart(2, "0")} / {totalLandmarks}</span></div>
+              <button className="badge-detail__close" ref={detailCloseRef} type="button" onClick={closeBadgeDetail} aria-label="关闭徽章大图"><X aria-hidden="true" size={20} weight="regular" /></button>
+            </header>
+            <div className="badge-detail__body">
+              <section className="badge-detail__stage" aria-label={`${detailLandmark.title} 3D 徽章预览`}>
+                <div className="badge-detail__badge"><HexBadge landmark={detailLandmark} city={detailCity} unlocked={Boolean(detailRecord)} featured detail celebrating={celebratingId === detailLandmark.id} /></div>
+              </section>
+              <section className="badge-detail__copy" style={{ "--badge-accent-ink": detailCity.accentInk }}>
+                <span>{detailCity.name} · {detailCity.english}</span>
+                <h2 id="badge-detail-title">{detailLandmark.title}</h2>
+                <p id="badge-detail-description">{detailLandmark.description}</p>
+                <div className={`badge-detail__status ${detailRecord ? "is-unlocked" : ""}`}>
+                  {detailRecord ? <SealCheck aria-hidden="true" size={22} weight="duotone" /> : <LockKey aria-hidden="true" size={21} weight="duotone" />}
+                  <span>{detailRecord ? <>已点亮<br /><small>{formatDate(detailRecord.checkedAt)} · 再点取消</small></> : <>尚未打卡<br /><small>点亮后会记录到你的城市档案</small></>}</span>
+                </div>
+                <button className="badge-detail__checkin" type="button" onClick={() => handleLandmarkClick(detailLandmark)} aria-label={detailRecord ? `取消${detailLandmark.title}打卡` : `点亮${detailLandmark.title}徽章`}>
+                  {detailRecord ? "取消打卡" : "点亮徽章"} <ArrowUpRight aria-hidden="true" size={15} weight="bold" />
+                </button>
+                <small className="badge-detail__footnote">ESC 关闭 · 点击外部区域也可关闭</small>
+              </section>
+            </div>
+          </div>
+        </div>;
+      })()}
+      {shareDialogOpen && <div className="share-dialog" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title" aria-describedby="share-dialog-description" onMouseDown={(event) => { if (event.target === event.currentTarget) closeShareCard(); }}>
+        <div className="share-dialog__panel" ref={shareDialogRef}>
+          <header className="share-dialog__header">
+            <div><span>SHARE CARD</span><span>{String(totalUnlocked).padStart(2, "0")} / {totalLandmarks} ARCHIVED</span></div>
+            <button className="share-dialog__close" ref={shareCloseRef} type="button" onClick={closeShareCard} aria-label="关闭分享卡片"><X aria-hidden="true" size={20} weight="regular" /></button>
+          </header>
+          <div className="share-dialog__body">
+            <section className="share-dialog__preview" aria-label="我的城市印记分享卡预览">
+              {shareCardState.status === "ready" ? <img src={shareCardState.dataUrl} alt={`我的城市印记分享卡，已点亮 ${totalUnlocked} / ${totalLandmarks} 枚徽章`} /> : shareCardState.status === "error" ? <div className="share-dialog__message"><ShareNetwork aria-hidden="true" size={32} weight="duotone" /><strong>分享卡暂时没有生成</strong><span>图片资源加载失败，可以重试。</span><button type="button" onClick={retryShareCard}>重新生成</button></div> : <div className="share-dialog__message"><ShareNetwork aria-hidden="true" size={32} weight="duotone" /><strong>正在绘制你的徽章墙</strong><span>把已打卡的地标和城市进度写进一张图片。</span></div>}
+            </section>
+            <section className="share-dialog__copy">
+              <span className="share-dialog__eyebrow">YOUR PROGRESS</span>
+              <h2 id="share-dialog-title">把自己的墙，带走。</h2>
+              <p id="share-dialog-description">分享卡会把当前已打卡的徽章拼成一面墙，并把四座城市的完成进度保留在图片里。</p>
+              <div className="share-dialog__summary"><strong>{String(totalUnlocked).padStart(2, "0")}</strong><span>/ {totalLandmarks}<small>枚徽章已点亮</small></span></div>
+              <div className="share-dialog__cities">{cities.map((city) => { const count = landmarks.filter((landmark) => landmark.city === city.id && progress[landmark.id]).length; return <div className="share-dialog__city" key={city.id}><span><i style={{ backgroundColor: city.accent }} />{city.name}</span><strong>{count} / 10</strong></div>; })}</div>
+              <div className="share-dialog__actions"><button className="share-dialog__download" type="button" onClick={downloadShareCard} disabled={shareCardState.status !== "ready"}><DownloadSimple aria-hidden="true" size={17} weight="bold" /> {shareCardState.status === "loading" ? "正在生成图片…" : "下载分享卡片"}</button>{nativeShareAvailable && <button className="share-dialog__share" type="button" onClick={shareProgress} disabled={shareCardState.status === "loading"}><ShareNetwork aria-hidden="true" size={17} weight="bold" /> 分享进度</button>}<button className="share-dialog__copy-link" type="button" onClick={copyShareUrl}><Copy aria-hidden="true" size={15} weight="bold" /> 复制分享链接</button></div>
+              <small className="share-dialog__feedback" role="status" aria-live="polite">{shareFeedback || "图片会包含当前进度，适合直接发给朋友。"}</small>
+              <small className="share-dialog__footnote">分享链接 · {PUBLIC_SHARE_URL.replace(/^https?:\/\//, "")}</small>
+            </section>
+          </div>
+        </div>
+      </div>}
     </div>
   );
 }
