@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="100%" height="100%">
+  <title>城市印记 · 徽章打卡档案 - City Stamp Archive</title>
+  <defs>
+    <linearGradient id="bgGrad_city-stamp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0D111A"/>
+      <stop offset="100%" stop-color="#05070B"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad_city-stamp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="100%" stop-color="#FFB800"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1200" height="420" rx="16" fill="url(#bgGrad_city-stamp)" stroke="#1E293B" stroke-width="1.5"/>
+
+  <!-- Left Content Block -->
+  <g transform="translate(60, 50)">
+    <!-- Category Pill -->
+    <rect x="0" y="0" width="334" height="28" rx="14" fill="#00F0FF" opacity="0.15"/>
+    <text x="14" y="19" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" fill="#00F0FF" letter-spacing="1.5">URBAN EXPLORATION &amp; INTERACTIVE BADGES</text>
+
+    <!-- Main Title (Chinese) -->
+    <text x="0" y="85" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif" font-size="40" font-weight="900" fill="#F8FAFC" letter-spacing="-0.5">
+      城市印记 · 徽章打卡档案
+    </text>
+
+    <!-- Subtitle (English & Value Proposition) -->
+    <text x="0" y="125" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#FFB800" letter-spacing="0.5">
+      City Stamp Archive
+    </text>
+
+    <!-- Tagline Description -->
+    <text x="0" y="170" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif" font-size="16" font-weight="500" fill="#94A3B8">
+      把走过的地标，收进会发光的六边形徽章与三维打卡墙
+    </text>
+
+    <!-- Key Spec Badge Array -->
+    <g transform="translate(0, 225)">
+      <!-- Badge 1 -->
+      <rect x="0" y="0" width="419" height="38" rx="8" fill="#1E2430" stroke="#1E293B" stroke-width="1"/>
+      <circle cx="18" cy="19" r="4" fill="#00F0FF"/>
+      <text x="32" y="24" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#F8FAFC">4 CITIES · 40 BADGES · 3D PARALLAX &amp; GLOW</text>
+    </g>
+
+    <!-- Navigation / Quick action badges -->
+    <g transform="translate(0, 285)">
+      <rect x="0" y="0" width="135" height="34" rx="17" fill="#00F0FF"/>
+      <text x="67" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">TRY LIVE DEMO</text>
+
+      <rect x="145" y="0" width="125" height="34" rx="17" fill="#1E293B" stroke="#1E293B" stroke-width="1"/>
+      <text x="207" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#94A3B8">GITHUB REPO</text>
+    </g>
+  </g>
+
+  <!-- Right Visual Specimen Motif -->
+  
+        <!-- City Stamp Hexagon Badges Visual -->
+        <g transform="translate(730, 40)">
+          <!-- Glowing Hexagons Cluster -->
+          <!-- Central Lit Hexagon -->
+          <polygon points="200,70 265,108 265,183 200,220 135,183 135,108" fill="#111A28" stroke="#00F0FF" stroke-width="3"/>
+          <polygon points="200,82 253,113 253,176 200,208 147,176 147,113" fill="none" stroke="#00F0FF" stroke-width="1" stroke-dasharray="5 3"/>
+          <circle cx="200" cy="145" r="30" fill="#00F0FF" opacity="0.15"/>
+          <circle cx="200" cy="145" r="6" fill="#00F0FF"/>
+          <text x="200" y="125" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="800" fill="#00F0FF">SHANGHAI</text>
+          <text x="200" y="172" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="700" fill="#94A3B8">UNLOCKED · 10/10</text>
+
+          <!-- Top-Left Hexagon (Beijing) -->
+          <polygon points="90,15 145,47 145,110 90,142 35,110 35,47" fill="#0C121D" stroke="#FFB800" stroke-width="2" opacity="0.85"/>
+          <circle cx="90" cy="78" r="4" fill="#FFB800"/>
+          <text x="90" y="65" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="800" fill="#FFB800">BEIJING</text>
+          <text x="90" y="98" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="600" fill="#94A3B8">ACTIVE</text>
+
+          <!-- Bottom-Right Hexagon (Suzhou) -->
+          <polygon points="310,130 365,162 365,225 310,257 255,225 255,162" fill="#0C121D" stroke="#8B5CF6" stroke-width="2" opacity="0.85"/>
+          <circle cx="310" cy="193" r="4" fill="#8B5CF6"/>
+          <text x="310" y="180" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="800" fill="#8B5CF6">SUZHOU</text>
+          <text x="310" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="600" fill="#94A3B8">ACTIVE</text>
+
+          <!-- Connective constellation lines -->
+          <line x1="90" y1="78" x2="200" y2="145" stroke="#00F0FF" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.5"/>
+          <line x1="200" y1="145" x2="310" y2="193" stroke="#00F0FF" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.5"/>
+
+          <!-- Status indicator bar -->
+          <rect x="70" y="270" width="260" height="28" rx="14" fill="#0C1322" stroke="#1E293B" stroke-width="1"/>
+          <circle cx="90" cy="284" r="5" fill="#00F0FF"/>
+          <text x="105" y="289" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#F8FAFC">40 BADGES · 3D PARALLAX READY</text>
+        </g>
+        
+</svg>
