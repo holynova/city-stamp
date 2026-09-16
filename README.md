@@ -32,7 +32,7 @@
 ## 核心机制与特色 (Why It Matters)
 
 - **六边形发光状态机**：灰阶未解锁状态 vs 荧光点亮态微流动效，支持打卡时间戳精确记录与持久化。
-- **全视角 3D 悬浮视差**：基于陀螺仪与鼠标坐标的实时三维多层视差响应，呈现徽章金属质感厚度。
+- **全视角 3D 悬浮视差**：徽章随鼠标位置倾斜，呈现金属质感与空间层次。
 - **蜂窝式可缩放徽章墙**：流畅缩放平移的蜂窝打卡墙，一览四座名城探索全貌与解锁进度。
 - **个性化足迹分享卡片**：动态生成包含已解锁徽章阵列、城市完成率与探索者签名的精美分享卡片。
 
@@ -57,13 +57,18 @@
 ```bash
 git clone https://github.com/holynova/city-stamp.git
 cd city-stamp
-open index.html # Pure static HTML5, zero build required
+npm ci
+npm run dev
 ```
 
 ---
 
+打开终端输出的开发地址。该项目使用 React + Vite，需要开发服务器；构建与预览使用 `npm run build`、`npm run preview`。
+
+打卡记录保存在当前浏览器的 `localStorage`。查看徽章详情与打卡是独立操作；清理站点数据会清除本地记录。
+
 ## 开源协议与作者 (License & Author)
 
 - **作者**：[holynova (小桑)](https://xiaosang.cc/)
-- **授权协议**：[MIT License](./LICENSE)
+- **授权说明**：仓库当前未附独立 LICENSE 文件；复用代码或素材前请确认相应授权。
 - **合辑收录**：本仓库作为精选项目收录于 [Where Craft Lives (xiaosang.cc)](https://xiaosang.cc/)。
