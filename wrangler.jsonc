@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "city-stamp",
+  "account_id": "ef7863c4de93e71c3496f940c8ab4865",
+  "compatibility_date": "2026-09-03",
+  "main": "worker/index.js",
+  "workers_dev": false,
+  "assets": {
+    "directory": "dist/client"
+  },
+  "routes": [
+    {
+      "pattern": "city-stamp.xiaosang.cc",
+      "custom_domain": true
+    }
+  ]
+}

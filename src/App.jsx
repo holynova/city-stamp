@@ -225,10 +225,16 @@ function loadShareArtwork(landmark) {
   return new Promise((resolve) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => resolve(null);
-    image.src = new URL(`./badges/${landmark.id}.png`, document.baseURI).href;
+    image.onerror = () => {
+      const fallback = new Image();
+      fallback.onload = () => resolve(fallback);
+      fallback.onerror = () => resolve(null);
+      fallback.src = new URL(`./badges/${landmark.id}.png`, document.baseURI).href;
+    };
+    image.src = new URL(`./badges-webp/${landmark.id}.webp`, document.baseURI).href;
   });
 }
+
 
 async function createShareCardDataUrl({ checkedLandmarks, progress }) {
   const canvas = document.createElement("canvas");
@@ -395,7 +401,7 @@ function LandmarkIcon({ name, size = 32, weight = "regular" }) {
   return <Icon aria-hidden="true" size={size} weight={weight} />;
 }
 
-function HexBadge({ landmark, city, unlocked, featured = false, detail = false, celebrating = false }) {
+function HexBadge({ landmark, city, unlocked, featured = false, detail = false, celebrating = false, priority = false }) {
   const badgeRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5, active: false });
   const frameRef = useRef(0);
@@ -450,7 +456,21 @@ function HexBadge({ landmark, city, unlocked, featured = false, detail = false, 
       <div className="hex-badge__core">
         <div className="hex-badge__glass" aria-hidden="true" />
         <div className="hex-badge__art-wrap">
-          <img className="hex-badge__art" src={`./badges/${landmark.id}.png`} alt="" aria-hidden="true" draggable="false" />
+          <picture className="hex-badge__art-picture">
+            <source srcSet={`./badges-webp/${landmark.id}.webp`} type="image/webp" />
+            <img
+              className="hex-badge__art"
+              src={`./badges/${landmark.id}.png`}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              width="480"
+              height="480"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "low"}
+              decoding="async"
+            />
+          </picture>
         </div>
         <div className="hex-badge__sheen" aria-hidden="true" />
       </div>
@@ -789,7 +809,7 @@ function App() {
                 <div className="spotlight-panel__orbit spotlight-panel__orbit--one" aria-hidden="true" />
                 <div className="spotlight-panel__orbit spotlight-panel__orbit--two" aria-hidden="true" />
                 <button className="spotlight-panel__badge-button" type="button" onClick={() => handleLandmarkClick(selectedLandmark)} aria-label={selectedRecord ? `取消${selectedLandmark.title}打卡` : `点亮${selectedLandmark.title}徽章`}>
-                  <HexBadge landmark={selectedLandmark} city={selectedCity} unlocked={Boolean(selectedRecord)} featured celebrating={celebratingId === selectedLandmark.id} />
+                  <HexBadge landmark={selectedLandmark} city={selectedCity} unlocked={Boolean(selectedRecord)} featured celebrating={celebratingId === selectedLandmark.id} priority />
                 </button>
                 <button className="spotlight-panel__detail-button" type="button" onClick={() => openBadgeDetail(selectedLandmark)} aria-label={`查看${selectedLandmark.title}的3D大图`}><ArrowsOut aria-hidden="true" size={14} weight="bold" /> 查看 3D 大图</button>
                 <span className="spotlight-panel__caption">{selectedRecord ? "YOUR RECORDED MOMENT" : "TAP TO RECORD YOUR MOMENT"}</span>
@@ -821,11 +841,11 @@ function App() {
               </div>
             </div>
             <div className="badge-grid" aria-live="polite">
-              {visibleLandmarks.map((landmark) => {
+              {visibleLandmarks.map((landmark, index) => {
                 const isUnlocked = Boolean(progress[landmark.id]);
                 return <article className={`badge-record ${selectedId === landmark.id ? "is-selected" : ""}`} key={landmark.id}>
                   <button className="badge-record__button" type="button" onClick={() => handleLandmarkClick(landmark)} aria-label={isUnlocked ? `取消${landmark.title}打卡` : `点亮${landmark.title}徽章`}>
-                    <HexBadge landmark={landmark} city={activeCity} unlocked={isUnlocked} celebrating={celebratingId === landmark.id} />
+                    <HexBadge landmark={landmark} city={activeCity} unlocked={isUnlocked} celebrating={celebratingId === landmark.id} priority={index < 5} />
                   </button>
                   <div className="badge-record__copy"><div className="badge-record__serial"><span>{String(landmarks.indexOf(landmark) + 1).padStart(2, "0")}</span><span>{isUnlocked ? "ARCHIVED" : "UNDISCOVERED"}</span></div><h3>{landmark.title}</h3><p>{landmark.district}</p><span className={`badge-record__date ${isUnlocked ? "is-unlocked" : ""}`}>{isUnlocked ? `已于 ${formatDate(progress[landmark.id].checkedAt)} 记录 · 再点取消` : "点击徽章 · 记录到访"}</span><button className="badge-record__detail" type="button" onClick={() => openBadgeDetail(landmark)} aria-label={`查看${landmark.title}的3D大图`}><ArrowsOut aria-hidden="true" size={13} weight="bold" /> 查看 3D 大图</button></div>
                 </article>;
