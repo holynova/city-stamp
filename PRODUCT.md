@@ -12,7 +12,7 @@ delegated: React + Vite for a lightweight static site that can be published to G
 
 ## Users
 
-People visiting Shanghai, Suzhou, or Beijing who want to turn landmark visits into a personal, collectible travel record.
+People visiting Shanghai, Suzhou, Beijing, or Hangzhou who want to turn landmark visits into a personal, collectible travel record.
 
 ## Product Purpose
 
@@ -24,11 +24,11 @@ The meaningful mechanism is a visual city archive: every visit becomes a dated, 
 
 ## Operating Context
 
-The site is used on a phone while traveling and on a desktop when planning or reminiscing. Users move between three city collections and return later to see the same check-in state. The first version is self-contained and does not require an account, GPS, maps, or a server.
+The site is used on a phone while traveling and on a desktop when planning or reminiscing. Users move between four city collections and return later to see the same check-in state. The first version is self-contained and does not require an account, GPS, maps, or a server.
 
 ## Capabilities and Constraints
 
-- Three starting collections: Shanghai, Suzhou, and Beijing.
+- Four city collections: Shanghai, Suzhou, Beijing, and Hangzhou.
 - Exactly 10 landmark badges per city.
 - Every landmark badge uses a generated transparent landmark artwork inside the hexagon; the text label remains in the archive metadata below it.
 - Each badge starts locked and grayscale, then records a local check-in time and changes to a vivid, luminous unlocked state.
